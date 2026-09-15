@@ -444,55 +444,100 @@
             });
         }
 
-        // ==========================================
-        // ระบบแบบทดสอบก่อนเรียน (Pre-test) พร้อมล็อกสิทธิ์
+// ==========================================
+        // ระบบแบบทดสอบก่อนเรียน (Pre-test) 5 ข้อ พร้อมคิดคะแนนและล็อกสิทธิ์
         // ==========================================
         function openPreTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'pretest_done_' + username;
 
             if (localStorage.getItem(checkKey) === 'true') {
+                const savedScore = localStorage.getItem('pretest_score_' + username) || '0';
                 Swal.fire({
                     icon: 'warning',
                     title: 'ไม่สามารถทำซ้ำได้',
-                    text: 'คุณได้ทำแบบทดสอบก่อนเรียนไปแล้วเรียบร้อยครับ',
+                    html: `คุณได้ทำแบบทดสอบก่อนเรียนไปแล้วเรียบร้อยครับ<br><b>คะแนนที่คุณทำได้: ${savedScore} / 5 คะแนน</b>`,
                     confirmButtonColor: '#10b981'
                 });
                 return;
             }
 
             Swal.fire({
-                title: '📝 แบบทดสอบก่อนเรียน',
+                title: '📝 แบบทดสอบก่อนเรียน (5 ข้อ)',
                 html: `
-                    <div style="text-align: left; font-size: 0.9rem;" class="space-y-4">
-                        <p><b>ข้อ 1: ห้องเรียนเสมือนมีประโยชน์อย่างไร?</b></p>
-                        <label><input type="radio" name="q1" value="a"> ก. เรียนรู้ได้ทุกที่ ทุกเวลา</label><br>
-                        <label><input type="radio" name="q1" value="b"> ข. จำกัดเวลาเรียนเฉพาะในห้อง</label><br>
-                        
-                        <p class="mt-3"><b>ข้อ 2: องค์ประกอบใดสำคัญที่สุดในบทเรียนออนไลน์?</b></p>
-                        <label><input type="radio" name="q2" value="a"> ก. สีของเว็บไซต์</label><br>
-                        <label><input type="radio" name="q2" value="b"> ข. เนื้อหาและวิดีโอการสอน</label><br>
+                    <div style="text-align: left; font-size: 0.9rem;" class="space-y-4 max-h-[60vh] overflow-y-auto p-2">
+                        <!-- ข้อ 1 -->
+                        <p><b>ข้อ 1: Storyboard มีหน้าที่สำคัญอย่างไรในการผลิตวิดีโอ</b></p>
+                        <label><input type="radio" name="pre_q1" value="ก"> ก. ใช้บันทึกเสียง</label><br>
+                        <label><input type="radio" name="pre_q1" value="ข"> ข. ใช้วางแผนลำดับภาพและเหตุการณ์ก่อนถ่ายทำ</label><br>
+                        <label><input type="radio" name="pre_q1" value="ค"> ค. ใช้ปรับสีวิดีโอ</label><br>
+                        <label><input type="radio" name="pre_q1" value="ง"> ง. ใช้เผยแพร่วิดีโอ</label><br>
+
+                        <!-- ข้อ 2 -->
+                        <p class="mt-3"><b>ข้อ 2: Adobe Premiere เหมาะกับงานใดมากที่สุด</b></p>
+                        <label><input type="radio" name="pre_q2" value="ก"> ก. จัดลำดับและตัดต่อวิดีโอ</label><br>
+                        <label><input type="radio" name="pre_q2" value="ข"> ข. สร้างเอกสารข้อความ</label><br>
+                        <label><input type="radio" name="pre_q2" value="ค"> ค. สร้างตารางคำนวณ</label><br>
+                        <label><input type="radio" name="pre_q2" value="ง"> ง. ออกแบบเว็บไซต์</label><br>
+
+                        <!-- ข้อ 3 -->
+                        <p class="mt-3"><b>ข้อ 3: Timeline ในโปรแกรมตัดต่อมีหน้าที่หลักอย่างไร</b></p>
+                        <label><input type="radio" name="pre_q3" value="ก"> ก. ใช้เปลี่ยนเลนส์กล้อง</label><br>
+                        <label><input type="radio" name="pre_q3" value="ข"> ข. ใช้บันทึกเสียงเท่านั้น</label><br>
+                        <label><input type="radio" name="pre_q3" value="ค"> ค. ใช้เชื่อมต่ออินเทอร์เน็ต</label><br>
+                        <label><input type="radio" name="pre_q3" value="ง"> ง. แสดงพื้นที่จัดวางคลิปตามลำดับเวลา</label><br>
+
+                        <!-- ข้อ 4 -->
+                        <p class="mt-3"><b>ข้อ 4: เสียงมีความสำคัญต่อการผลิตวิดีโออย่างไร</b></p>
+                        <label><input type="radio" name="pre_q4" value="ก"> ก. มีไว้เพิ่มขนาดไฟล์</label><br>
+                        <label><input type="radio" name="pre_q4" value="ข"> ข. ไม่มีผลต่อความเข้าใจ</label><br>
+                        <label><input type="radio" name="pre_q4" value="ค"> ค. ใช้แทนภาพได้ทุกกรณี</label><br>
+                        <label><input type="radio" name="pre_q4" value="ง"> ง. ช่วยสนับสนุนการสื่อสารและสร้างอารมณ์ของเนื้อหา</label><br>
+
+                        <!-- ข้อ 5 -->
+                        <p class="mt-3"><b>ข้อ 5: OBS จากกิจกรรมในรายวิชาถูกนำมาใช้เพื่อวัตถุประสงค์ใด</b></p>
+                        <label><input type="radio" name="pre_q5" value="ก"> ก. วาด Storyboard</label><br>
+                        <label><input type="radio" name="pre_q5" value="ข"> ข. การถ่ายทอดสดและจัดการแหล่งภาพ/เสียง</label><br>
+                        <label><input type="radio" name="pre_q5" value="ค"> ค. สร้างภาพ Vector</label><br>
+                        <label><input type="radio" name="pre_q5" value="ง"> ง. สร้างโมเดล 3 มิติ</label><br>
                     </div>
                 `,
                 confirmButtonText: 'ส่งคำตอบ',
-                confirmButtonColor: '#10b981',
+                confirmButtonColor: '#10b981`,
+                width: '650px',
                 focusConfirm: false,
                 preConfirm: () => {
-                    const q1 = document.querySelector('input[name="q1"]:checked');
-                    const q2 = document.querySelector('input[name="q2"]:checked');
-                    if (!q1 || !q2) {
+                    const q1 = document.querySelector('input[name="pre_q1"]:checked');
+                    const q2 = document.querySelector('input[name="pre_q2"]:checked');
+                    const q3 = document.querySelector('input[name="pre_q3"]:checked');
+                    const q4 = document.querySelector('input[name="pre_q4"]:checked');
+                    const q5 = document.querySelector('input[name="pre_q5"]:checked');
+
+                    if (!q1 || !q2 || !q3 || !q4 || !q5) {
                         Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ');
                         return false;
                     }
-                    return true;
+
+                    // ตรวจคำตอบตามเฉลย (ข้อ 1: ข, ข้อ 2: ก, ข้อ 3: ง, ข้อ 4: ง, ข้อ 5: ข)[cite: 6]
+                    let score = 0;
+                    if (q1.value === 'ข') score++;
+                    if (q2.value === 'ก') score++;
+                    if (q3.value === 'ง') score++;
+                    if (q4.value === 'ง') score++;
+                    if (q5.value === 'ข') score++;
+
+                    return score;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    const score = result.value;
                     localStorage.setItem(checkKey, 'true');
+                    localStorage.setItem('pretest_score_' + username, score);
+
                     Swal.fire({
                         icon: 'success',
                         title: 'ส่งคำตอบสำเร็จ!',
-                        text: 'ระบบได้บันทึกคะแนนทดสอบก่อนเรียนของคุณเรียบร้อยแล้ว',
+                        html: `บันทึกคะแนนเรียบร้อยแล้ว<br><b>คะแนนทดสอบก่อนเรียนของคุณ: ${score} / 5 คะแนน</b>`,
                         confirmButtonColor: '#10b981'
                     });
                 }
@@ -500,54 +545,99 @@
         }
 
         // ==========================================
-        // ระบบแบบทดสอบหลังเรียน (Post-test) พร้อมล็อกสิทธิ์
+        // ระบบแบบทดสอบหลังเรียน (Post-test) 5 ข้อ พร้อมคิดคะแนนและล็อกสิทธิ์
         // ==========================================
         function openPostTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'posttest_done_' + username;
 
             if (localStorage.getItem(checkKey) === 'true') {
+                const savedScore = localStorage.getItem('posttest_score_' + username) || '0';
                 Swal.fire({
                     icon: 'warning',
                     title: 'ไม่สามารถทำซ้ำได้',
-                    text: 'คุณได้ทำแบบทดสอบหลังเรียนไปแล้วเรียบร้อยครับ',
+                    html: `คุณได้ทำแบบทดสอบหลังเรียนไปแล้วเรียบร้อยครับ<br><b>คะแนนที่คุณทำได้: ${savedScore} / 5 คะแนน</b>`,
                     confirmButtonColor: '#3b82f6'
                 });
                 return;
             }
 
             Swal.fire({
-                title: '📊 แบบทดสอบหลังเรียน',
+                title: '📊 แบบทดสอบหลังเรียน (5 ข้อ)',
                 html: `
-                    <div style="text-align: left; font-size: 0.9rem;" class="space-y-4">
-                        <p><b>ข้อ 1: หลังจากเรียนจบบทเรียนนี้ ท่านได้รับความรู้เพิ่มขึ้นหรือไม่?</b></p>
-                        <label><input type="radio" name="pq1" value="a"> ก. มากที่สุด</label><br>
-                        <label><input type="radio" name="pq1" value="b"> ข. ปานกลาง</label><br>
-                        
-                        <p class="mt-3"><b>ข้อ 2: ท่านพึงพอใจกับระบบห้องเรียนเสมือนนี้ระดับใด?</b></p>
-                        <label><input type="radio" name="pq2" value="a"> ก. พึงพอใจมาก</label><br>
-                        <label><input type="radio" name="pq2" value="b"> ข. ควรปรับปรุง</label><br>
+                    <div style="text-align: left; font-size: 0.9rem;" class="space-y-4 max-h-[60vh] overflow-y-auto p-2">
+                        <!-- ข้อ 1 -->
+                        <p><b>ข้อ 1: ก่อนถ่ายทำฉากสนทนา นักศึกษาต้องการกำหนดลำดับภาพและมุมกล้องให้ทีมเข้าใจตรงกัน ควรจัดทำสิ่งใดก่อน</b></p>
+                        <label><input type="radio" name="post_q1" value="ก"> ก. Audio Mixer</label><br>
+                        <label><input type="radio" name="post_q1" value="ข"> ข. Storyboard</label><br>
+                        <label><input type="radio" name="post_q1" value="ค"> ค. Color Preset</label><br>
+                        <label><input type="radio" name="post_q1" value="ง"> ง. Export Setting</label><br>
+
+                        <!-- ข้อ 2 -->
+                        <p class="mt-3"><b>ข้อ 2: เมื่อถ่ายทำเสร็จและต้องนำคลิปหลายช็อตมาเรียงเป็นเรื่องเดียวกัน โปรแกรมใดเหมาะกับงานหลักนี้</b></p>
+                        <label><input type="radio" name="post_q2" value="ก"> ก. Adobe Illustrator</label><br>
+                        <label><input type="radio" name="post_q2" value="ข"> ข. OBS</label><br>
+                        <label><input type="radio" name="post_q2" value="ค"> ค. Adobe Premiere</label><br>
+                        <label><input type="radio" name="post_q2" value="ง"> ง. Adobe Photoshop</label><br>
+
+                        <!-- ข้อ 3 -->
+                        <p class="mt-3"><b>ข้อ 3: ในโปรแกรมตัดต่อ พื้นที่ที่ใช้วางคลิปภาพและเสียงตามลำดับเวลาคือส่วนใด</b></p>
+                        <label><input type="radio" name="post_q3" value="ก"> ก. Timeline</label><br>
+                        <label><input type="radio" name="post_q3" value="ข"> ข. Source</label><br>
+                        <label><input type="radio" name="post_q3" value="ค"> ค. Canvas</label><br>
+                        <label><input type="radio" name="post_q3" value="ง"> ง. Browser</label><br>
+
+                        <!-- ข้อ 4 -->
+                        <p class="mt-3"><b>ข้อ 4: หากภาพดีแต่เสียงสนทนาเบามาก ผลกระทบสำคัญที่สุดคือข้อใด</b></p>
+                        <label><input type="radio" name="post_q4" value="ก"> ก. ภาพจะเปลี่ยนความละเอียดทันที</label><br>
+                        <label><input type="radio" name="post_q4" value="ข"> ข. ผู้ชมอาจรับสารและเข้าใจเนื้อหาได้ไม่ครบถ้วน</label><br>
+                        <label><input type="radio" name="post_q4" value="ค"> ค. Frame Rate จะเพิ่มขึ้น</label><br>
+                        <label><input type="radio" name="post_q4" value="ง"> ง. Storyboard จะหายไป</label><br>
+
+                        <!-- ข้อ 5 -->
+                        <p class="mt-3"><b>ข้อ 5: นักศึกษาต้องรวมภาพจากกล้อง เสียงจากไมโครโฟน และสื่ออื่นเพื่อถ่ายทอดสด ควรใช้โปรแกรมใดตามกิจกรรม</b></p>
+                        <label><input type="radio" name="post_q5" value="ก"> ก. Adobe Illustrator</label><br>
+                        <label><input type="radio" name="post_q5" value="ข"> ข. Adobe InDesign</label><br>
+                        <label><input type="radio" name="post_q5" value="ค"> ค. Microsoft Excel</label><br>
+                        <label><input type="radio" name="post_q5" value="ง"> ง. OBS</label><br>
                     </div>
                 `,
                 confirmButtonText: 'ส่งคำตอบ',
                 confirmButtonColor: '#3b82f6',
+                width: '650px',
                 focusConfirm: false,
                 preConfirm: () => {
-                    const pq1 = document.querySelector('input[name="pq1"]:checked');
-                    const pq2 = document.querySelector('input[name="pq2"]:checked');
-                    if (!pq1 || !pq2) {
+                    const q1 = document.querySelector('input[name="post_q1"]:checked');
+                    const q2 = document.querySelector('input[name="post_q2"]:checked');
+                    const q3 = document.querySelector('input[name="post_q3"]:checked');
+                    const q4 = document.querySelector('input[name="post_q4"]:checked');
+                    const q5 = document.querySelector('input[name="post_q5"]:checked');
+
+                    if (!q1 || !q2 || !q3 || !q4 || !q5) {
                         Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ');
                         return false;
                     }
-                    return true;
+
+                    // ตรวจคำตอบตามเฉลย (ข้อ 1: ข, ข้อ 2: ค, ข้อ 3: ก, ข้อ 4: ข, ข้อ 5: ง)[cite: 7]
+                    let score = 0;
+                    if (q1.value === 'ข') score++;
+                    if (q2.value === 'ค') score++;
+                    if (q3.value === 'ก') score++;
+                    if (q4.value === 'ข') score++;
+                    if (q5.value === 'ง') score++;
+
+                    return score;
                 }
             }).then((result) => {
                 if (result.isConfirmed) {
+                    const score = result.value;
                     localStorage.setItem(checkKey, 'true');
+                    localStorage.setItem('posttest_score_' + username, score);
+
                     Swal.fire({
                         icon: 'success',
                         title: 'ส่งคำตอบสำเร็จ!',
-                        text: 'ระบบได้บันทึกคะแนนทดสอบหลังเรียนของคุณเรียบร้อยแล้ว',
+                        html: `บันทึกคะแนนเรียบร้อยแล้ว<br><b>คะแนนทดสอบหลังเรียนของคุณ: ${score} / 5 คะแนน</b>`,
                         confirmButtonColor: '#3b82f6'
                     });
                 }
