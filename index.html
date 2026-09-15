@@ -68,7 +68,7 @@
 
             <div class="flex items-center space-x-3 bg-sky-50 px-4 py-2 rounded-2xl border border-sky-100">
                 <div class="text-right">
-                    <p class="text-sm font-semibold text-sky-900">สวัสดี, นักศึกษา</p>
+                    <p id="user-display-name" class="text-sm font-semibold text-sky-900">สวัสดี, นักศึกษา</p>
                     <p class="text-xs text-sky-600">ความรู้ไม่มีขีดจำกัด</p>
                 </div>
                 <div class="w-10 h-10 rounded-full bg-sky-400 text-white flex items-center justify-center font-bold text-base shadow-sm">🎓</div>
@@ -142,7 +142,7 @@
                 </div>
             </section>
 
-            <!-- ขวา: โซนการประเมิน -->
+            <!-- ขวา: โซนการประเมิน (เพิ่ม ทดสอบก่อนเรียน และ ทดสอบหลังเรียน แบบล็อกสิทธิ์) -->
             <section class="lg:col-span-3 bg-white/95 border-2 border-emerald-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
                 <div>
                     <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-3">
@@ -151,15 +151,23 @@
                     </div>
 
                     <div class="space-y-3">
-                        <a href="ใส่ลิงก์ทดสอบก่อนเรียน.html" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-3.5 rounded-2xl transition duration-200 text-sm">
+                        <!-- ปุ่มทดสอบก่อนเรียน -->
+                        <button onclick="openPreTest()" class="w-full text-left bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-3 rounded-2xl transition duration-200 text-sm">
                             <span class="font-bold text-emerald-800">📝 ทดสอบก่อนเรียน</span><br>
                             <span class="text-gray-600 text-xs">วัดความรู้พื้นฐานก่อนบทเรียน ➔</span>
-                        </a>
-                        <a href="ใส่ลิงก์ผลงานนักศึกษา.html" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-3.5 rounded-2xl transition duration-200 text-sm">
+                        </button>
+
+                        <!-- ปุ่มทดสอบหลังเรียน -->
+                        <button onclick="openPostTest()" class="w-full text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 p-3 rounded-2xl transition duration-200 text-sm">
+                            <span class="font-bold text-blue-800">📊 ทดสอบหลังเรียน</span><br>
+                            <span class="text-gray-600 text-xs">ประเมินความรู้หลังเรียนจบ ➔</span>
+                        </button>
+
+                        <a href="ใส่ลิงก์ผลงานนักศึกษา.html" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-3 rounded-2xl transition duration-200 text-sm">
                             <span class="font-bold text-emerald-800">📁 ผลงานนักศึกษา</span><br>
                             <span class="text-gray-600 text-xs">ส่งผลงานและดูตัวอย่างผลงาน ➔</span>
                         </a>
-                        <a href="ใส่ลิงก์แบบประเมินความพึงพอใจ.html" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-3.5 rounded-2xl transition duration-200 text-sm">
+                        <a href="ใส่ลิงก์แบบประเมินความพึงพอใจ.html" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-3 rounded-2xl transition duration-200 text-sm">
                             <span class="font-bold text-emerald-800">⭐ แบบประเมินความพึงพอใจ</span><br>
                             <span class="text-gray-600 text-xs">ร่วมแสดงความคิดเห็น ➔</span>
                         </a>
@@ -234,12 +242,11 @@
 
 
     <!-- ========================================== -->
-    <!-- ส่วนควบคุม JavaScript หลัก -->
+    <!-- ส่วนควบคุม JavaScript (ระบบ Login & แบบทดสอบ) -->
     <!-- ========================================== -->
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
 
-        // ตรวจสอบว่าเคยเข้าสู่ระบบแล้วหรือยังตอนเปิดหน้าเว็บ
         window.addEventListener('DOMContentLoaded', () => {
             if (sessionStorage.getItem('isLoggedIn') === 'true') {
                 showHome();
@@ -249,6 +256,8 @@
         function showHome() {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('home-section').classList.remove('hidden');
+            const username = sessionStorage.getItem('currentUsername') || 'นักศึกษา';
+            document.getElementById('user-display-name').innerText = `สวัสดี, ${username}`;
         }
 
         function jsonp(url, callbackName) {
@@ -307,6 +316,7 @@
 
                         if (res.status === 'success') {
                             sessionStorage.setItem('isLoggedIn', 'true');
+                            sessionStorage.setItem('currentUsername', result.value.username);
                             Swal.fire({
                                 icon: 'success',
                                 title: 'เข้าสู่ระบบสำเร็จ',
@@ -314,7 +324,7 @@
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {
-                                showHome(); // สลับแสดงหน้า Home ทันทีโดยไม่ต้องเปลี่ยนไฟล์
+                                showHome();
                             });
                         } else {
                             Swal.fire({
@@ -409,6 +419,124 @@
                             confirmButtonColor: '#059669'
                         });
                     }
+                }
+            });
+        }
+
+        // ==========================================
+        // ระบบแบบทดสอบก่อนเรียน (Pre-test) พร้อมล็อกสิทธิ์
+        // ==========================================
+        function openPreTest() {
+            const username = sessionStorage.getItem('currentUsername') || 'guest';
+            const checkKey = 'pretest_done_' + username;
+
+            // ตรวจสอบว่าเคยทำไปแล้วหรือยัง
+            if (localStorage.getItem(checkKey) === 'true') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่สามารถทำซ้ำได้',
+                    text: 'คุณได้ทำแบบทดสอบก่อนเรียนไปแล้วเรียบร้อยครับ',
+                    confirmButtonColor: '#10b981'
+                });
+                return;
+            }
+
+            // เปิดหน้าต่างทำแบบทดสอบ (ตัวอย่างแบบฟอร์มคำถาม)
+            Swal.fire({
+                title: '📝 แบบทดสอบก่อนเรียน',
+                html: `
+                    <div style="text-align: left; font-size: 0.9rem;" class="space-y-4">
+                        <p><b>ข้อ 1: ห้องเรียนเสมือนมีประโยชน์อย่างไร?</b></p>
+                        <label><input type="radio" name="q1" value="a"> ก. เรียนรู้ได้ทุกที่ ทุกเวลา</label><br>
+                        <label><input type="radio" name="q1" value="b"> ข. จำกัดเวลาเรียนเฉพาะในห้อง</label><br>
+                        
+                        <p class="mt-3"><b>ข้อ 2: องค์ประกอบใดสำคัญที่สุดในบทเรียนออนไลน์?</b></p>
+                        <label><input type="radio" name="q2" value="a"> ก. สีของเว็บไซต์</label><br>
+                        <label><input type="radio" name="q2" value="b"> ข. เนื้อหาและวิดีโอการสอน</label><br>
+                    </div>
+                `,
+                confirmButtonText: 'ส่งคำตอบ',
+                confirmButtonColor: '#10b981',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const q1 = document.querySelector('input[name="q1"]:checked');
+                    const q2 = document.querySelector('input[name="q2"]:checked');
+                    if (!q1 || !q2) {
+                        Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ');
+                        return false;
+                    }
+                    return true;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // บันทึกสถานะว่าทำแล้วลงใน localStorage (ล็อกไม่ให้ทำซ้ำ)
+                    localStorage.setItem(checkKey, 'true');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ส่งคำตอบสำเร็จ!',
+                        text: 'ระบบได้บันทึกคะแนนทดสอบก่อนเรียนของคุณเรียบร้อยแล้ว',
+                        confirmButtonColor: '#10b981'
+                    });
+                }
+            });
+        }
+
+        // ==========================================
+        // ระบบแบบทดสอบหลังเรียน (Post-test) พร้อมล็อกสิทธิ์
+        // ==========================================
+        function openPostTest() {
+            const username = sessionStorage.getItem('currentUsername') || 'guest';
+            const checkKey = 'posttest_done_' + username;
+
+            // ตรวจสอบว่าเคยทำไปแล้วหรือยัง
+            if (localStorage.getItem(checkKey) === 'true') {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'ไม่สามารถทำซ้ำได้',
+                    text: 'คุณได้ทำแบบทดสอบหลังเรียนไปแล้วเรียบร้อยครับ',
+                    confirmButtonColor: '#3b82f6'
+                });
+                return;
+            }
+
+            // เปิดหน้าต่างทำแบบทดสอบหลังเรียน
+            Swal.fire({
+                title: '📊 แบบทดสอบหลังเรียน',
+                html: `
+                    <div style="text-align: left; font-size: 0.9rem;" class="space-y-4">
+                        <p><b>ข้อ 1: หลังจากเรียนจบบทเรียนนี้ ท่านได้รับความรู้เพิ่มขึ้นหรือไม่?</b></p>
+                        <label><input type="radio" name="pq1" value="a"> ก. มากที่สุด</label><br>
+                        <label><input type="radio" name="pq1" value="b"> ข. ปานกลาง</label><br>
+                        
+                        <p class="mt-3"><b>ข้อ 2: ท่านพึงพอใจกับระบบห้องเรียนเสมือนนี้ระดับใด?</b></p>
+                        <label><input type="radio" name="pq2" value="a"> ก. พึงพอใจมาก</label><br>
+                        <label><input type="radio" name="pq2" value="b"> ข. ควรปรับปรุง</label><br>
+                    </div>
+                `,
+                confirmButtonText: 'ส่งคำตอบ',
+                confirmButtonColor: '#3b82f6',
+                focusConfirm: false,
+                preConfirm: () => {
+                    const pq1 = document.querySelector('input[name="pq1"]:checked');
+                    const pq2 = document.querySelector('input[name="pq2"]:checked');
+                    if (!pq1 || !pq2) {
+                        Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ');
+                        return false;
+                    }
+                    return true;
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // บันทึกสถานะว่าทำแล้วลงใน localStorage (ล็อกไม่ให้ทำซ้ำ)
+                    localStorage.setItem(checkKey, 'true');
+
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'ส่งคำตอบสำเร็จ!',
+                        text: 'ระบบได้บันทึกคะแนนทดสอบหลังเรียนของคุณเรียบร้อยแล้ว',
+                        confirmButtonCode: '#3b82f6'
+                    });
                 }
             });
         }
