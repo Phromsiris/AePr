@@ -448,6 +448,9 @@
             });
         }
 
+// ==========================================
+        // ระบบแบบทดสอบก่อนเรียน (Pre-test) พร้อมส่งคะแนนเข้า Google Sheet
+        // ==========================================
         function openPreTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'pretest_done_' + username;
@@ -523,11 +526,20 @@
 
                     return score;
                 }
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
                     const score = result.value;
                     localStorage.setItem(checkKey, 'true');
                     localStorage.setItem('pretest_score_' + username, score);
+
+                    // ส่งคะแนนไปบันทึกที่ Google Sheet
+                    try {
+                        const cbName = 'jsonp_pre_' + Math.random().toString(36).substring(2);
+                        const url = `${SCRIPT_URL}?action=save_score&username=${encodeURIComponent(username)}&test_type=Pre-test&score=${score}`;
+                        await jsonp(url, cbName);
+                    } catch (e) {
+                        console.error('Save score error', e);
+                    }
 
                     Swal.fire({
                         icon: 'success',
@@ -539,6 +551,9 @@
             });
         }
 
+        // ==========================================
+        // ระบบแบบทดสอบหลังเรียน (Post-test) พร้อมส่งคะแนนเข้า Google Sheet
+        // ==========================================
         function openPostTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'posttest_done_' + username;
@@ -614,11 +629,20 @@
 
                     return score;
                 }
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
                     const score = result.value;
                     localStorage.setItem(checkKey, 'true');
                     localStorage.setItem('posttest_score_' + username, score);
+
+                    // ส่งคะแนนไปบันทึกที่ Google Sheet
+                    try {
+                        const cbName = 'jsonp_post_' + Math.random().toString(36).substring(2);
+                        const url = `${SCRIPT_URL}?action=save_score&username=${encodeURIComponent(username)}&test_type=Post-test&score=${score}`;
+                        await jsonp(url, cbName);
+                    } catch (e) {
+                        console.error('Save score error', e);
+                    }
 
                     Swal.fire({
                         icon: 'success',
