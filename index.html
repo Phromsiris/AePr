@@ -381,8 +381,8 @@
             Swal.fire({
                 title: 'กู้คืนรหัสผ่าน',
                 html: `
-                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกชื่อผู้ใช้ (Username) หรืออีเมลที่คุณใช้ลงทะเบียน ระบบจะแสดงรหัสผ่านของคุณขึ้นมาทันที</p>
-                    <input type="text" id="forgot-input" class="swal2-input" placeholder="ชื่อผู้ใช้ หรือ อีเมล">
+                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกอีเมลที่คุณใช้ลงทะเบียน ระบบจะแสดงรหัสผ่านของคุณขึ้นมาทันที</p>
+                    <input type="text" id="forgot-input" class="swal2-input" placeholder="อีเมล">
                 `,
                 confirmButtonText: 'ตรวจสอบรหัสผ่าน',
                 confirmButtonColor: '#4f46e5',
@@ -392,7 +392,7 @@
                 preConfirm: () => {
                     const inputVal = document.getElementById('forgot-input').value.trim();
                     if (!inputVal) {
-                        Swal.showValidationMessage('กรุณากรอกชื่อผู้ใช้หรืออีเมลครับ');
+                        Swal.showValidationMessage('กรุณากรอกอีเมลครับ');
                         return false;
                     }
                     return inputVal;
@@ -408,7 +408,7 @@
 
                     try {
                         const cbName = 'jsonp_forgot_' + Math.random().toString(36).substring(2);
-                        const url = `${SCRIPT_URL}?action=forgot_password&username_or_email=${encodeURIComponent(result.value)}`;
+                        const url = `${SCRIPT_URL}?action=forgot_password&email=${encodeURIComponent(result.value)}`;
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
