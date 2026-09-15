@@ -459,20 +459,31 @@
             });
         }
 
-        // แบบทดสอบก่อนเรียน (Pre-test) พร้อมส่งคะแนนไปลงแถวเดียวกัน
-        function openPreTest() {
+// ==========================================
+        // ระบบแบบทดสอบก่อนเรียน (Pre-test) เช็กจาก Google Sheet
+        // ==========================================
+        async function openPreTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
-            const checkKey = 'pretest_done_' + username;
 
-            if (localStorage.getItem(checkKey) === 'true') {
-                const savedScore = localStorage.getItem('pretest_score_' + username) || '0';
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ไม่สามารถทำซ้ำได้',
-                    html: `คุณได้ทำแบบทดสอบก่อนเรียนไปแล้วเรียบร้อยครับ<br><b>คะแนนที่คุณทำได้: ${savedScore} / 5 คะแนน</b>`,
-                    confirmButtonColor: '#10b981'
-                });
-                return;
+            Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const cbName = 'jsonp_check_pre_' + Math.random().toString(36).substring(2);
+                const url = `${SCRIPT_URL}?action=check_score&username=${encodeURIComponent(username)}`;
+                const res = await jsonp(url, cbName);
+                Swal.close();
+
+                if (res.status === 'success' && res.pre !== null && res.pre !== undefined && res.pre !== "") {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่สามารถทำซ้ำได้',
+                        html: `คุณได้ทำแบบทดสอบก่อนเรียนไปแล้วครับ<br><b>คะแนนที่คุณทำได้: ${res.pre} / 5 คะแนน</b>`,
+                        confirmButtonColor: '#10b981'
+                    });
+                    return;
+                }
+            } catch (e) {
+                Swal.close();
             }
 
             Swal.fire({
@@ -538,8 +549,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     const score = result.value;
-                    localStorage.setItem(checkKey, 'true');
-                    localStorage.setItem('pretest_score_' + username, score);
+                    Swal.fire({ title: 'กำลังบันทึกคะแนน...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
                     try {
                         const cbName = 'jsonp_pre_' + Math.random().toString(36).substring(2);
@@ -559,20 +569,31 @@
             });
         }
 
-        // แบบทดสอบหลังเรียน (Post-test) พร้อมส่งคะแนนไปลงแถวเดียวกัน
-        function openPostTest() {
+        // ==========================================
+        // ระบบแบบทดสอบหลังเรียน (Post-test) เช็กจาก Google Sheet
+        // ==========================================
+        async function openPostTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
-            const checkKey = 'posttest_done_' + username;
 
-            if (localStorage.getItem(checkKey) === 'true') {
-                const savedScore = localStorage.getItem('posttest_score_' + username) || '0';
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'ไม่สามารถทำซ้ำได้',
-                    html: `คุณได้ทำแบบทดสอบหลังเรียนไปแล้วเรียบร้อยครับ<br><b>คะแนนที่คุณทำได้: ${savedScore} / 5 คะแนน</b>`,
-                    confirmButtonColor: '#3b82f6'
-                });
-                return;
+            Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+            try {
+                const cbName = 'jsonp_check_post_' + Math.random().toString(36).substring(2);
+                const url = `${SCRIPT_URL}?action=check_score&username=${encodeURIComponent(username)}`;
+                const res = await jsonp(url, cbName);
+                Swal.close();
+
+                if (res.status === 'success' && res.post !== null && res.post !== undefined && res.post !== "") {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'ไม่สามารถทำซ้ำได้',
+                        html: `คุณได้ทำแบบทดสอบหลังเรียนไปแล้วครับ<br><b>คะแนนที่คุณทำได้: ${res.post} / 5 คะแนน</b>`,
+                        confirmButtonColor: '#3b82f6'
+                    });
+                    return;
+                }
+            } catch (e) {
+                Swal.close();
             }
 
             Swal.fire({
@@ -638,8 +659,7 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     const score = result.value;
-                    localStorage.setItem(checkKey, 'true');
-                    localStorage.setItem('posttest_score_' + username, score);
+                    Swal.fire({ title: 'กำลังบันทึกคะแนน...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
 
                     try {
                         const cbName = 'jsonp_post_' + Math.random().toString(36).substring(2);
