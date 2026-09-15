@@ -305,12 +305,16 @@
             });
         }
 
+// ฟังก์ชัน Login (เพิ่มปุ่มลืมรหัสผ่าน)
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
                 html: `
                     <input type="text" id="login-username" class="swal2-input" placeholder="ชื่อผู้ใช้">
                     <input type="password" id="login-password" class="swal2-input" placeholder="รหัสผ่าน">
+                    <div style="text-align: right; margin-top: 10px; margin-right: 20px;">
+                        <a href="#" onclick="openForgotPasswordModal(); return false;" style="font-size: 0.85rem; color: #4f46e5; text-decoration: underline;">ลืมรหัสผ่าน?</a>
+                    </div>
                 `,
                 confirmButtonText: 'Login',
                 confirmButtonColor: '#4f46e5',
@@ -372,8 +376,70 @@
             });
         }
 
+        // ฟังก์ชันสำหรับเปิดหน้าต่างกรอกข้อมูลกู้คืนรหัสผ่าน
+        function openForgotPasswordModal() {
+            Swal.fire({
+                title: 'กู้คืนรหัสผ่าน',
+                html: `
+                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกชื่อผู้ใช้ (Username) หรืออีเมลที่คุณใช้ลงทะเบียน ระบบจะส่งรหัสผ่านไปที่อีเมลของคุณ</p>
+                    <input type="text" id="forgot-input" class="swal2-input" placeholder="ชื่อผู้ใช้ หรือ อีเมล">
+                `,
+                confirmButtonText: 'ส่งรหัสผ่าน',
+                confirmButtonColor: '#4f46e5',
+                focusConfirm: false,
+                showCancelButton: true,
+                cancelButtonText: 'กลับ',
+                preConfirm: () => {
+                    const inputVal = document.getElementById('forgot-input').value.trim();
+                    if (!inputVal) {
+                        Swal.showValidationMessage('กรุณากรอกชื่อผู้ใช้หรืออีเมลครับ');
+                        return false;
+                    }
+                    return inputVal;
+                }
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    Swal.fire({
+                        title: 'กำลังส่งข้อมูล...',
+                        text: 'โปรดรอสักครู่ ระบบกำลังส่งอีเมล',
+                        allowOutsideClick: false,
+                        didOpen: () => { Swal.showLoading(); }
+                    });
+
+                    try {
+                        const cbName = 'jsonp_forgot_' + Math.random().toString(36).substring(2);
+                        const url = `${SCRIPT_URL}?action=forgot_password&username_or_email=${encodeURIComponent(result.value)}`;
+                        const res = await jsonp(url, cbName);
+
+                        if (res.status === 'success') {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'สำเร็จ!',
+                                text: res.message,
+                                confirmButtonColor: '#4f46e5'
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'ไม่พบข้อมูล',
+                                text: res.message,
+                                confirmButtonColor: '#4f46e5'
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'เกิดข้อผิดพลาด',
+                            text: 'ไม่สามารถเชื่อมต่อกับระบบได้',
+                            confirmButtonColor: '#4f46e5'
+                        });
+                    }
+                }
+            });
+        }
+
 // ฟังก์ชัน Register (เพิ่มคำนำหน้าชื่อ)
-        function openRegisterModal() {
+function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
                 html: `
@@ -397,6 +463,7 @@
                         <option value="บุคคลภายนอก">บุคคลภายนอก</option>
                         <option value="อื่นๆ">อื่นๆ</option>
                     </select>
+                    <input type="email" id="reg-email" class="swal2-input" placeholder="อีเมลสำหรับกู้คืนรหัสผ่าน (Email)">
                     <input type="text" id="reg-username" class="swal2-input" placeholder="ชื่อผู้ใช้ (Username)">
                     <input type="password" id="reg-password" class="swal2-input" placeholder="ตั้งรหัสผ่าน (Password)">
                 `,
@@ -409,14 +476,15 @@
                     const prefix = document.getElementById('reg-prefix').value;
                     const fullname = document.getElementById('reg-fullname').value.trim();
                     const year = document.getElementById('reg-year').value;
+                    const email = document.getElementById('reg-email').value.trim();
                     const username = document.getElementById('reg-username').value.trim();
                     const password = document.getElementById('reg-password').value.trim();
 
-                    if (!prefix || !fullname || !year || !username || !password) {
-                        Swal.showValidationMessage('กรุณากรอกข้อมูลและเลือกคำนำหน้าให้ครบทุกช่อง');
+                    if (!prefix || !fullname || !year || !email || !username || !password) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบทุกช่องครับ');
                         return false;
                     }
-                    return { prefix, fullname, year, username, password };
+                    return { prefix, fullname, year, email, username, password };
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
@@ -429,7 +497,7 @@
 
                     try {
                         const cbName = 'jsonp_reg_' + Math.random().toString(36).substring(2);
-                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&prefix=${encodeURIComponent(result.value.prefix)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.value.year)}`;
+                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&prefix=${encodeURIComponent(result.value.prefix)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.value.year)}&email=${encodeURIComponent(result.value.email)}`;
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
