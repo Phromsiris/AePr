@@ -163,17 +163,29 @@
                             <span class="text-gray-600 text-xs">ประเมินความรู้หลังเรียนจบ ➔</span>
                         </button>
 
-                        <!-- ผลงานนักศึกษา ห้องที่ 1 CA68 -->
-                        <a href="https://www.viverse.com/EZYZYAp" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-2.5 rounded-2xl transition duration-200 text-sm">
-                            <span class="font-bold text-emerald-800">📁 ผลงานนักศึกษา ห้อง 1 (CA68)</span><br>
-                            <span class="text-gray-600 text-xs">ดูผลงานและตัวอย่าง ➔</span>
-                        </a>
+                        <!-- ปุ่มหลัก: แฟ้มสะสมผลงานนักศึกษา (คลิกเพื่อเปิด-ปิดปุ่มย่อย) -->
+                        <div>
+                            <button onclick="togglePortfolioMenu()" class="w-full text-left bg-amber-50 hover:bg-amber-100 border border-amber-200 p-2.5 rounded-2xl transition duration-200 text-sm flex justify-between items-center">
+                                <div>
+                                    <span class="font-bold text-amber-800">📂 แฟ้มสะสมผลงานนักศึกษา</span><br>
+                                    <span class="text-gray-600 text-xs">เลือกดูผลงานตามห้องเรียน ➔</span>
+                                </div>
+                                <span id="portfolio-arrow" class="text-amber-700 font-bold transition-transform duration-200">▼</span>
+                            </button>
 
-                        <!-- ผลงานนักศึกษา ห้องที่ 2 CA69 -->
-                        <a href="https://www.viverse.com/bzgtGN7" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-2.5 rounded-2xl transition duration-200 text-sm">
-                            <span class="font-bold text-emerald-800">📁 ผลงานนักศึกษา ห้อง 2 (CA69)</span><br>
-                            <span class="text-gray-600 text-xs">ดูผลงานและตัวอย่าง ➔</span>
-                        </a>
+                            <!-- ปุ่มย่อย (ซ่อนไว้ก่อนจนกว่าจะกดปุ่มหลัก) -->
+                            <div id="portfolio-submenu" class="hidden pl-3 mt-2 space-y-2 border-l-2 border-amber-300">
+                                <a href="https://www.viverse.com/EZYZYAp" target="_blank" class="block bg-amber-50/60 hover:bg-amber-100 border border-amber-200 p-2 rounded-xl transition duration-200 text-xs">
+                                    <span class="font-bold text-amber-900">📁 ผลงานนักศึกษา ห้อง 1 (CA68)</span><br>
+                                    <span class="text-gray-500 text-[11px]">ดูตัวอย่างผลงาน ➔</span>
+                                </a>
+                                <a href="https://www.viverse.com/bzgtGN7" target="_blank" class="block bg-amber-50/60 hover:bg-amber-100 border border-amber-200 p-2 rounded-xl transition duration-200 text-xs">
+                                    <span class="font-bold text-amber-900">📁 ผลงานนักศึกษา ห้อง 2 (CA69)</span><br>
+                                    <span class="text-gray-500 text-[11px]">ดูตัวอย่างผลงาน ➔</span>
+                                </a>
+                            </div>
+                        </div>
+
 
                         <!-- แบบประเมินความพึงพอใจ -->
                         <a href="ใส่ลิงก์แบบประเมินความพึงพอใจ.html" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-2.5 rounded-2xl transition duration-200 text-sm">
