@@ -140,18 +140,20 @@
             });
         }
 
-        // 4. หน้า Popup “ลงทะเบียนเข้าสู่ระบบ” -> บันทึกลง Google Sheet
+        // 4. หน้า Popup “ลงทะเบียนเข้าสู่ระบบ” -> เพิ่ม อาจารย์ และ บุคคลภายนอก
         function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
                 html: `
                     <input type="text" id="reg-fullname" class="swal2-input" placeholder="ชื่อ - นามสกุล">
                     <select id="reg-year" class="swal2-input" style="height: 50px; font-size: 1rem;">
-                        <option value="" disabled selected>-- เลือกชั้นปีที่กำลังศึกษา --</option>
+                        <option value="" disabled selected>-- เลือกชั้นปี / สถานะ --</option>
                         <option value="ปี 1">ชั้นปีที่ 1</option>
                         <option value="ปี 2">ชั้นปีที่ 2</option>
                         <option value="ปี 3">ชั้นปีที่ 3</option>
                         <option value="ปี 4">ชั้นปีที่ 4</option>
+                        <option value="อาจารย์">อาจารย์</option>
+                        <option value="บุคคลภายนอก">บุคคลภายนอก</option>
                         <option value="อื่นๆ">อื่นๆ</option>
                     </select>
                     <input type="text" id="reg-username" class="swal2-input" placeholder="ชื่อผู้ใช้ (Username)">
