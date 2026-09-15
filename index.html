@@ -376,15 +376,15 @@
             });
         }
 
-        // ฟังก์ชันสำหรับเปิดหน้าต่างกรอกข้อมูลกู้คืนรหัสผ่าน
+// ฟังก์ชันสำหรับเปิดหน้าต่างกู้คืนรหัสผ่านและแสดงผลบนหน้าจอทันที
         function openForgotPasswordModal() {
             Swal.fire({
                 title: 'กู้คืนรหัสผ่าน',
                 html: `
-                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกชื่อผู้ใช้ (Username) หรืออีเมลที่คุณใช้ลงทะเบียน ระบบจะส่งรหัสผ่านไปที่อีเมลของคุณ</p>
+                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกชื่อผู้ใช้ (Username) หรืออีเมลที่คุณใช้ลงทะเบียน ระบบจะแสดงรหัสผ่านของคุณขึ้นมาทันที</p>
                     <input type="text" id="forgot-input" class="swal2-input" placeholder="ชื่อผู้ใช้ หรือ อีเมล">
                 `,
-                confirmButtonText: 'ส่งรหัสผ่าน',
+                confirmButtonText: 'ตรวจสอบรหัสผ่าน',
                 confirmButtonColor: '#4f46e5',
                 focusConfirm: false,
                 showCancelButton: true,
@@ -400,8 +400,8 @@
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     Swal.fire({
-                        title: 'กำลังส่งข้อมูล...',
-                        text: 'โปรดรอสักครู่ ระบบกำลังส่งอีเมล',
+                        title: 'กำลังค้นหาข้อมูล...',
+                        text: 'โปรดรอสักครู่',
                         allowOutsideClick: false,
                         didOpen: () => { Swal.showLoading(); }
                     });
@@ -414,8 +414,8 @@
                         if (res.status === 'success') {
                             Swal.fire({
                                 icon: 'success',
-                                title: 'สำเร็จ!',
-                                text: res.message,
+                                title: 'กู้คืนรหัสผ่านสำเร็จ',
+                                html: res.message, // แสดงข้อความรหัสผ่านที่ดึงมาจาก Google Sheet
                                 confirmButtonColor: '#4f46e5'
                             });
                         } else {
