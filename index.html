@@ -27,78 +27,22 @@
             <p class="text-gray-500 text-sm mt-1">ระบบลงทะเบียนและเข้าสู่บทเรียนออนไลน์</p>
         </header>
 
-<!-- Main Content -->
-        <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch flex-grow mb-4">
-
-            <!-- ซ้าย: โซนการเรียนรู้ 6 ห้อง (บนมือถือจะถูกปัดลงไปอยู่อันดับ 2) -->
-            <section class="lg:col-span-3 order-2 lg:order-1 bg-white/95 border-2 border-sky-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
-                <div>
-                    <div class="flex items-center justify-between border-b border-sky-100 pb-3 mb-3">
-                        <h2 class="text-sm md:text-base font-bold text-sky-600 flex items-center gap-2">📖 โซนการเรียนรู้</h2>
-                        <span class="text-xs bg-sky-100 text-sky-700 px-2.5 py-0.5 rounded-full font-semibold">6 ห้อง</span>
-                    </div>
-                    
-                    <div class="grid grid-cols-1 gap-2">
-                        <!-- รายการห้องเรียนต่างๆ -->
-                        <a href="https://www.viverse.com/9miMwnR" target="_blank" class="block bg-sky-50 hover:bg-sky-100 border border-sky-200 p-3 rounded-xl transition duration-200 text-sm">
-                            <span class="font-bold text-sky-800">ห้องเรียนที่ 1</span> <span class="text-gray-400 text-xs">➔</span><br>
-                            <span class="text-gray-600 text-xs">ห้องเตรียมความพร้อมและแอนิเมชันพื้นฐาน</span>
-                        </a>
-                        <!-- (ห้องอื่นๆ คงเดิม) -->
-                    </div>
+        <main class="flex-grow flex items-center justify-center px-4">
+            <div class="bg-white p-8 rounded-3xl shadow-xl w-full max-w-md text-center space-y-6 border border-indigo-50">
+                <div class="space-y-2">
+                    <h2 class="text-xl font-semibold text-gray-800">ยินดีต้อนรับ</h2>
+                    <p class="text-sm text-gray-500">กรุณาเลือกทำรายการที่คุณต้องการ</p>
                 </div>
-            </section>
-
-            <!-- กลาง: วิดีโอหลัก + แนะนำการใช้งาน (บนมือถือจะถูกดันขึ้นมาอยู่อันดับ 1 บนสุด) -->
-            <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center justify-between">
-                <div class="w-full">
-                    <div class="text-center mb-3">
-                        <h2 class="text-xl md:text-2xl font-bold text-purple-700 drop-shadow-sm">ยินดีต้อนรับสู่ห้องเรียนเสมือน</h2>
-                        <p class="text-xs md:text-sm text-purple-500">เรียนรู้ได้ทุกที่...สู่อนาคตที่ดีกว่า</p>
-                    </div>
-
-                    <div class="w-full bg-white border-4 border-purple-300 rounded-3xl p-3 shadow-xl relative">
-                        <div class="relative w-full aspect-video bg-gray-100 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
-                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/YOUR_VIDEO_ID_HERE" title="Video Lesson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>
-                        <div class="mt-3 text-center bg-purple-50 py-2 rounded-xl border border-purple-100">
-                            <p class="text-xs md:text-sm text-purple-700 font-medium">การเรียนรู้...เริ่มต้นได้จากที่นี่</p>
-                        </div>
-                    </div>
+                
+                <div class="flex flex-col space-y-4">
+                    <button onclick="openLoginModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5">
+                        ลงชื่อเข้าใช้
+                    </button>
+                    <button onclick="openRegisterModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5">
+                        ลงทะเบียนเข้าสู่ระบบ
+                    </button>
                 </div>
-
-                <div class="w-full mt-4 bg-white/95 border border-pink-200 rounded-3xl p-4 shadow-lg flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <div>
-                        <h3 class="text-sm font-bold text-pink-700 flex items-center gap-2">💡 แนะนำการใช้งานระบบ</h3>
-                        <p class="text-xs text-gray-500">คู่มือการใช้งาน ระบบห้องเรียนเสมือน</p>
-                    </div>
-                    <a href="https://docs.google.com/document/d/1BBnGLz0ayb-4qNO5ZsrRkcyWbPi209ZP/edit?usp=sharing&ouid=104609652906443726100&rtpof=true&sd=true" target="_blank" class="bg-pink-100 hover:bg-pink-200 border border-pink-300 text-pink-700 text-xs md:text-sm font-semibold py-2.5 px-4 rounded-2xl shadow-sm transition whitespace-nowrap">📖 ดูคู่มือ ➔</a>
-                </div>
-            </section>
-
-            <!-- ขวา: โซนการประเมิน (อยู่ลำดับ 3 ทั้งมือถือและคอมพิวเตอร์) -->
-            <section class="lg:col-span-3 order-3 lg:order-3 bg-white/95 border-2 border-emerald-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
-                <div>
-                    <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-3">
-                        <h2 class="text-sm md:text-base font-bold text-emerald-600 flex items-center gap-2">📋 โซนการประเมิน</h2>
-                        <span class="text-xs bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full font-semibold">ตรวจสอบ</span>
-                    </div>
-
-                    <div class="space-y-2.5">
-                        <button onclick="openPreTest()" class="w-full text-left bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-2.5 rounded-2xl transition duration-200 text-sm">
-                            <span class="font-bold text-emerald-800">📝 ทดสอบก่อนเรียน</span><br>
-                            <span class="text-gray-600 text-xs">วัดความรู้พื้นฐานก่อนบทเรียน ➔</span>
-                        </button>
-
-                        <button onclick="openPostTest()" class="w-full text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 p-2.5 rounded-2xl transition duration-200 text-sm">
-                            <span class="font-bold text-blue-800">📊 ทดสอบหลังเรียน</span><br>
-                            <span class="text-gray-600 text-xs">ประเมินความรู้หลังเรียนจบ ➔</span>
-                        </button>
-                        <!-- (เมนูอื่นๆ คงเดิม) -->
-                    </div>
-                </div>
-            </section>
-
+            </div>
         </main>
 
         <footer class="text-center py-4 text-xs text-gray-400">
@@ -131,11 +75,11 @@
             </div>
         </header>
 
-        <!-- Main Content -->
+        <!-- Main Content (จัดลำดับมือถือ: วิดีโอ ➔ โซนประเมิน ➔ โซนการเรียนรู้) -->
         <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch flex-grow mb-4">
 
-            <!-- ซ้าย: โซนการเรียนรู้ 6 ห้อง -->
-            <section class="lg:col-span-3 bg-white/95 border-2 border-sky-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
+            <!-- 1. โซนการเรียนรู้ 6 ห้อง (บนมือถือจะอยู่ล่างสุด order-3) -->
+            <section class="lg:col-span-3 order-3 lg:order-1 bg-white/95 border-2 border-sky-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
                 <div>
                     <div class="flex items-center justify-between border-b border-sky-100 pb-3 mb-3">
                         <h2 class="text-sm md:text-base font-bold text-sky-600 flex items-center gap-2">📖 โซนการเรียนรู้</h2>
@@ -171,8 +115,8 @@
                 </div>
             </section>
 
-            <!-- กลาง: วิดีโอหลัก + แนะนำการใช้งาน -->
-            <section class="lg:col-span-6 flex flex-col items-center justify-between">
+            <!-- 2. วิดีโอหลัก + แนะนำการใช้งาน (บนมือถือจะอยู่บนสุด order-1) -->
+            <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center justify-between">
                 <div class="w-full">
                     <div class="text-center mb-3">
                         <h2 class="text-xl md:text-2xl font-bold text-purple-700 drop-shadow-sm">ยินดีต้อนรับสู่ห้องเรียนเสมือน</h2>
@@ -194,12 +138,12 @@
                         <h3 class="text-sm font-bold text-pink-700 flex items-center gap-2">💡 แนะนำการใช้งานระบบ</h3>
                         <p class="text-xs text-gray-500">คู่มือการใช้งาน ระบบห้องเรียนเสมือน</p>
                     </div>
-                    <a href="ใส่ลิงก์คู่มือการใช้งาน.html" target="_blank" class="bg-pink-100 hover:bg-pink-200 border border-pink-300 text-pink-700 text-xs md:text-sm font-semibold py-2.5 px-4 rounded-2xl shadow-sm transition whitespace-nowrap">📖 ดูคู่มือ ➔</a>
+                    <a href="https://docs.google.com/document/d/1BBnGLz0ayb-4qNO5ZsrRkcyWbPi209ZP/edit?usp=sharing&ouid=104609652906443726100&rtpof=true&sd=true" target="_blank" class="bg-pink-100 hover:bg-pink-200 border border-pink-300 text-pink-700 text-xs md:text-sm font-semibold py-2.5 px-4 rounded-2xl shadow-sm transition whitespace-nowrap">📖 ดูคู่มือ ➔</a>
                 </div>
             </section>
 
-            <!-- ขวา: โซนการประเมิน -->
-            <section class="lg:col-span-3 bg-white/95 border-2 border-emerald-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
+            <!-- 3. โซนการประเมิน (บนมือถือจะอยู่อันดับ 2 ถัดจากวิดีโอ order-2) -->
+            <section class="lg:col-span-3 order-2 lg:order-3 bg-white/95 border-2 border-emerald-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
                 <div>
                     <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-3">
                         <h2 class="text-sm md:text-base font-bold text-emerald-600 flex items-center gap-2">📋 โซนการประเมิน</h2>
@@ -313,7 +257,7 @@
 
 
     <!-- ========================================== -->
-    <!-- ส่วนควบคุม JavaScript (แก้ไข Syntax Error แล้ว) -->
+    <!-- ส่วนควบคุม JavaScript -->
     <!-- ========================================== -->
     <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
@@ -361,7 +305,7 @@
             });
         }
 
-// ฟังก์ชัน Login (เพิ่มปุ่มลืมรหัสผ่าน)
+        // ฟังก์ชัน Login (พร้อมปุ่มกู้คืนรหัสผ่าน)
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
@@ -432,13 +376,13 @@
             });
         }
 
-// ฟังก์ชันสำหรับเปิดหน้าต่างกู้คืนรหัสผ่านและแสดงผลบนหน้าจอทันที
+        // ฟังก์ชันกู้คืนรหัสผ่าน (แสดงรหัสผ่านบนหน้าจอทันที ไม่ติดปัญหาสิทธิ์ Gmail)
         function openForgotPasswordModal() {
             Swal.fire({
                 title: 'กู้คืนรหัสผ่าน',
                 html: `
-                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกอีเมลที่คุณใช้ลงทะเบียน ระบบจะแสดงรหัสผ่านของคุณขึ้นมาทันที</p>
-                    <input type="text" id="forgot-input" class="swal2-input" placeholder="อีเมล">
+                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกชื่อผู้ใช้ (Username) หรืออีเมลที่คุณใช้ลงทะเบียน ระบบจะแสดงรหัสผ่านของคุณขึ้นมาทันที</p>
+                    <input type="text" id="forgot-input" class="swal2-input" placeholder="ชื่อผู้ใช้ หรือ อีเมล">
                 `,
                 confirmButtonText: 'ตรวจสอบรหัสผ่าน',
                 confirmButtonColor: '#4f46e5',
@@ -448,7 +392,7 @@
                 preConfirm: () => {
                     const inputVal = document.getElementById('forgot-input').value.trim();
                     if (!inputVal) {
-                        Swal.showValidationMessage('กรุณากรอกอีเมลครับ');
+                        Swal.showValidationMessage('กรุณากรอกชื่อผู้ใช้หรืออีเมลครับ');
                         return false;
                     }
                     return inputVal;
@@ -464,14 +408,14 @@
 
                     try {
                         const cbName = 'jsonp_forgot_' + Math.random().toString(36).substring(2);
-                        const url = `${SCRIPT_URL}?action=forgot_password&email=${encodeURIComponent(result.value)}`;
+                        const url = `${SCRIPT_URL}?action=forgot_password&username_or_email=${encodeURIComponent(result.value)}`;
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
                             Swal.fire({
                                 icon: 'success',
                                 title: 'กู้คืนรหัสผ่านสำเร็จ',
-                                html: res.message, // แสดงข้อความรหัสผ่านที่ดึงมาจาก Google Sheet
+                                html: res.message,
                                 confirmButtonColor: '#4f46e5'
                             });
                         } else {
@@ -494,8 +438,8 @@
             });
         }
 
-// ฟังก์ชัน Register (เพิ่มคำนำหน้าชื่อ)
-function openRegisterModal() {
+        // ฟังก์ชัน Register (ลงทะเบียน พร้อมคำนำหน้าชื่อและอีเมล)
+        function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
                 html: `
@@ -583,9 +527,7 @@ function openRegisterModal() {
             });
         }
 
-// ==========================================
         // ระบบแบบทดสอบก่อนเรียน (Pre-test) เช็กจาก Google Sheet
-        // ==========================================
         async function openPreTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
 
@@ -693,9 +635,7 @@ function openRegisterModal() {
             });
         }
 
-        // ==========================================
         // ระบบแบบทดสอบหลังเรียน (Post-test) เช็กจาก Google Sheet
-        // ==========================================
         async function openPostTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
 
