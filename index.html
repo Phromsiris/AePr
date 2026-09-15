@@ -265,7 +265,7 @@
     <!-- ========================================== -->
     <!-- ส่วนควบคุม JavaScript (ระบบ Login & แบบทดสอบ) -->
     <!-- ========================================== -->
-    <script>
+<script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -279,6 +279,19 @@
             document.getElementById('home-section').classList.remove('hidden');
             const username = sessionStorage.getItem('currentUsername') || 'นักศึกษา';
             document.getElementById('user-display-name').innerText = `สวัสดี, ${username}`;
+        }
+
+        // ฟังก์ชันสำหรับเปิด-ปิดเมนูย่อย แฟ้มสะสมผลงาน
+        function togglePortfolioMenu() {
+            const submenu = document.getElementById('portfolio-submenu');
+            const arrow = document.getElementById('portfolio-arrow');
+            if (submenu.classList.contains('hidden')) {
+                submenu.classList.remove('hidden');
+                arrow.style.transform = 'rotate(180deg)';
+            } else {
+                submenu.classList.add('hidden');
+                arrow.style.transform = 'rotate(0deg)';
+            }
         }
 
         function jsonp(url, callbackName) {
@@ -444,7 +457,7 @@
             });
         }
 
-// ==========================================
+        // ==========================================
         // ระบบแบบทดสอบก่อนเรียน (Pre-test) 5 ข้อ พร้อมคิดคะแนนและล็อกสิทธิ์
         // ==========================================
         function openPreTest() {
@@ -503,7 +516,7 @@
                     </div>
                 `,
                 confirmButtonText: 'ส่งคำตอบ',
-                confirmButtonColor: '#10b981`,
+                confirmButtonColor: '#10b981',
                 width: '650px',
                 focusConfirm: false,
                 preConfirm: () => {
@@ -518,7 +531,6 @@
                         return false;
                     }
 
-                    // ตรวจคำตอบตามเฉลย (ข้อ 1: ข, ข้อ 2: ก, ข้อ 3: ง, ข้อ 4: ง, ข้อ 5: ข)[cite: 6]
                     let score = 0;
                     if (q1.value === 'ข') score++;
                     if (q2.value === 'ก') score++;
@@ -618,7 +630,6 @@
                         return false;
                     }
 
-                    // ตรวจคำตอบตามเฉลย (ข้อ 1: ข, ข้อ 2: ค, ข้อ 3: ก, ข้อ 4: ข, ข้อ 5: ง)[cite: 7]
                     let score = 0;
                     if (q1.value === 'ข') score++;
                     if (q2.value === 'ค') score++;
@@ -643,6 +654,7 @@
                 }
             });
         }
+    </script>
     </script>
 </body>
 </html>
