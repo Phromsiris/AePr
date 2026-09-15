@@ -142,7 +142,7 @@
                 </div>
             </section>
 
-            <!-- ขวา: โซนการประเมิน (แยกผลงานนักศึกษาเป็น 2 ปุ่มตามต้องการ) -->
+            <!-- ขวา: โซนการประเมิน -->
             <section class="lg:col-span-3 bg-white/95 border-2 border-emerald-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
                 <div>
                     <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-3">
@@ -151,19 +151,16 @@
                     </div>
 
                     <div class="space-y-2.5">
-                        <!-- ปุ่มทดสอบก่อนเรียน (ล็อกสิทธิ์) -->
                         <button onclick="openPreTest()" class="w-full text-left bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-2.5 rounded-2xl transition duration-200 text-sm">
                             <span class="font-bold text-emerald-800">📝 ทดสอบก่อนเรียน</span><br>
                             <span class="text-gray-600 text-xs">วัดความรู้พื้นฐานก่อนบทเรียน ➔</span>
                         </button>
 
-                        <!-- ปุ่มทดสอบหลังเรียน (ล็อกสิทธิ์) -->
                         <button onclick="openPostTest()" class="w-full text-left bg-blue-50 hover:bg-blue-100 border border-blue-200 p-2.5 rounded-2xl transition duration-200 text-sm">
                             <span class="font-bold text-blue-800">📊 ทดสอบหลังเรียน</span><br>
                             <span class="text-gray-600 text-xs">ประเมินความรู้หลังเรียนจบ ➔</span>
                         </button>
 
-                        <!-- ปุ่มหลัก: แฟ้มสะสมผลงานนักศึกษา (คลิกเพื่อเปิด-ปิดปุ่มย่อย) -->
                         <div>
                             <button onclick="togglePortfolioMenu()" class="w-full text-left bg-amber-50 hover:bg-amber-100 border border-amber-200 p-2.5 rounded-2xl transition duration-200 text-sm flex justify-between items-center">
                                 <div>
@@ -173,7 +170,6 @@
                                 <span id="portfolio-arrow" class="text-amber-700 font-bold transition-transform duration-200">▼</span>
                             </button>
 
-                            <!-- ปุ่มย่อย (ซ่อนไว้ก่อนจนกว่าจะกดปุ่มหลัก) -->
                             <div id="portfolio-submenu" class="hidden pl-3 mt-2 space-y-2 border-l-2 border-amber-300">
                                 <a href="https://www.viverse.com/EZYZYAp" target="_blank" class="block bg-amber-50/60 hover:bg-amber-100 border border-amber-200 p-2 rounded-xl transition duration-200 text-xs">
                                     <span class="font-bold text-amber-900">📁 ผลงานนักศึกษา ห้อง 1 (CA68)</span><br>
@@ -186,8 +182,6 @@
                             </div>
                         </div>
 
-
-                        <!-- แบบประเมินความพึงพอใจ -->
                         <a href="ใส่ลิงก์แบบประเมินความพึงพอใจ.html" target="_blank" class="block bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 p-2.5 rounded-2xl transition duration-200 text-sm">
                             <span class="font-bold text-emerald-800">⭐ แบบประเมินความพึงพอใจ</span><br>
                             <span class="text-gray-600 text-xs">ร่วมแสดงความคิดเห็น ➔</span>
@@ -263,9 +257,9 @@
 
 
     <!-- ========================================== -->
-    <!-- ส่วนควบคุม JavaScript (ระบบ Login & แบบทดสอบ) -->
+    <!-- ส่วนควบคุม JavaScript (แก้ไข Syntax Error แล้ว) -->
     <!-- ========================================== -->
-<script>
+    <script>
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -281,7 +275,6 @@
             document.getElementById('user-display-name').innerText = `สวัสดี, ${username}`;
         }
 
-        // ฟังก์ชันสำหรับเปิด-ปิดเมนูย่อย แฟ้มสะสมผลงาน
         function togglePortfolioMenu() {
             const submenu = document.getElementById('portfolio-submenu');
             const arrow = document.getElementById('portfolio-arrow');
@@ -312,7 +305,6 @@
             });
         }
 
-        // ฟังก์ชัน Login
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
@@ -380,7 +372,6 @@
             });
         }
 
-        // ฟังก์ชัน Register
         function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
@@ -457,9 +448,6 @@
             });
         }
 
-        // ==========================================
-        // ระบบแบบทดสอบก่อนเรียน (Pre-test) 5 ข้อ พร้อมคิดคะแนนและล็อกสิทธิ์
-        // ==========================================
         function openPreTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'pretest_done_' + username;
@@ -479,35 +467,30 @@
                 title: '📝 แบบทดสอบก่อนเรียน (5 ข้อ)',
                 html: `
                     <div style="text-align: left; font-size: 0.9rem;" class="space-y-4 max-h-[60vh] overflow-y-auto p-2">
-                        <!-- ข้อ 1 -->
                         <p><b>ข้อ 1: Storyboard มีหน้าที่สำคัญอย่างไรในการผลิตวิดีโอ</b></p>
                         <label><input type="radio" name="pre_q1" value="ก"> ก. ใช้บันทึกเสียง</label><br>
                         <label><input type="radio" name="pre_q1" value="ข"> ข. ใช้วางแผนลำดับภาพและเหตุการณ์ก่อนถ่ายทำ</label><br>
                         <label><input type="radio" name="pre_q1" value="ค"> ค. ใช้ปรับสีวิดีโอ</label><br>
                         <label><input type="radio" name="pre_q1" value="ง"> ง. ใช้เผยแพร่วิดีโอ</label><br>
 
-                        <!-- ข้อ 2 -->
                         <p class="mt-3"><b>ข้อ 2: Adobe Premiere เหมาะกับงานใดมากที่สุด</b></p>
                         <label><input type="radio" name="pre_q2" value="ก"> ก. จัดลำดับและตัดต่อวิดีโอ</label><br>
                         <label><input type="radio" name="pre_q2" value="ข"> ข. สร้างเอกสารข้อความ</label><br>
                         <label><input type="radio" name="pre_q2" value="ค"> ค. สร้างตารางคำนวณ</label><br>
                         <label><input type="radio" name="pre_q2" value="ง"> ง. ออกแบบเว็บไซต์</label><br>
 
-                        <!-- ข้อ 3 -->
                         <p class="mt-3"><b>ข้อ 3: Timeline ในโปรแกรมตัดต่อมีหน้าที่หลักอย่างไร</b></p>
                         <label><input type="radio" name="pre_q3" value="ก"> ก. ใช้เปลี่ยนเลนส์กล้อง</label><br>
                         <label><input type="radio" name="pre_q3" value="ข"> ข. ใช้บันทึกเสียงเท่านั้น</label><br>
                         <label><input type="radio" name="pre_q3" value="ค"> ค. ใช้เชื่อมต่ออินเทอร์เน็ต</label><br>
                         <label><input type="radio" name="pre_q3" value="ง"> ง. แสดงพื้นที่จัดวางคลิปตามลำดับเวลา</label><br>
 
-                        <!-- ข้อ 4 -->
                         <p class="mt-3"><b>ข้อ 4: เสียงมีความสำคัญต่อการผลิตวิดีโออย่างไร</b></p>
                         <label><input type="radio" name="pre_q4" value="ก"> ก. มีไว้เพิ่มขนาดไฟล์</label><br>
                         <label><input type="radio" name="pre_q4" value="ข"> ข. ไม่มีผลต่อความเข้าใจ</label><br>
                         <label><input type="radio" name="pre_q4" value="ค"> ค. ใช้แทนภาพได้ทุกกรณี</label><br>
                         <label><input type="radio" name="pre_q4" value="ง"> ง. ช่วยสนับสนุนการสื่อสารและสร้างอารมณ์ของเนื้อหา</label><br>
 
-                        <!-- ข้อ 5 -->
                         <p class="mt-3"><b>ข้อ 5: OBS จากกิจกรรมในรายวิชาถูกนำมาใช้เพื่อวัตถุประสงค์ใด</b></p>
                         <label><input type="radio" name="pre_q5" value="ก"> ก. วาด Storyboard</label><br>
                         <label><input type="radio" name="pre_q5" value="ข"> ข. การถ่ายทอดสดและจัดการแหล่งภาพ/เสียง</label><br>
@@ -556,9 +539,6 @@
             });
         }
 
-        // ==========================================
-        // ระบบแบบทดสอบหลังเรียน (Post-test) 5 ข้อ พร้อมคิดคะแนนและล็อกสิทธิ์
-        // ==========================================
         function openPostTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'posttest_done_' + username;
@@ -578,35 +558,30 @@
                 title: '📊 แบบทดสอบหลังเรียน (5 ข้อ)',
                 html: `
                     <div style="text-align: left; font-size: 0.9rem;" class="space-y-4 max-h-[60vh] overflow-y-auto p-2">
-                        <!-- ข้อ 1 -->
                         <p><b>ข้อ 1: ก่อนถ่ายทำฉากสนทนา นักศึกษาต้องการกำหนดลำดับภาพและมุมกล้องให้ทีมเข้าใจตรงกัน ควรจัดทำสิ่งใดก่อน</b></p>
                         <label><input type="radio" name="post_q1" value="ก"> ก. Audio Mixer</label><br>
                         <label><input type="radio" name="post_q1" value="ข"> ข. Storyboard</label><br>
                         <label><input type="radio" name="post_q1" value="ค"> ค. Color Preset</label><br>
                         <label><input type="radio" name="post_q1" value="ง"> ง. Export Setting</label><br>
 
-                        <!-- ข้อ 2 -->
                         <p class="mt-3"><b>ข้อ 2: เมื่อถ่ายทำเสร็จและต้องนำคลิปหลายช็อตมาเรียงเป็นเรื่องเดียวกัน โปรแกรมใดเหมาะกับงานหลักนี้</b></p>
                         <label><input type="radio" name="post_q2" value="ก"> ก. Adobe Illustrator</label><br>
                         <label><input type="radio" name="post_q2" value="ข"> ข. OBS</label><br>
                         <label><input type="radio" name="post_q2" value="ค"> ค. Adobe Premiere</label><br>
                         <label><input type="radio" name="post_q2" value="ง"> ง. Adobe Photoshop</label><br>
 
-                        <!-- ข้อ 3 -->
                         <p class="mt-3"><b>ข้อ 3: ในโปรแกรมตัดต่อ พื้นที่ที่ใช้วางคลิปภาพและเสียงตามลำดับเวลาคือส่วนใด</b></p>
                         <label><input type="radio" name="post_q3" value="ก"> ก. Timeline</label><br>
                         <label><input type="radio" name="post_q3" value="ข"> ข. Source</label><br>
                         <label><input type="radio" name="post_q3" value="ค"> ค. Canvas</label><br>
                         <label><input type="radio" name="post_q3" value="ง"> ง. Browser</label><br>
 
-                        <!-- ข้อ 4 -->
                         <p class="mt-3"><b>ข้อ 4: หากภาพดีแต่เสียงสนทนาเบามาก ผลกระทบสำคัญที่สุดคือข้อใด</b></p>
                         <label><input type="radio" name="post_q4" value="ก"> ก. ภาพจะเปลี่ยนความละเอียดทันที</label><br>
                         <label><input type="radio" name="post_q4" value="ข"> ข. ผู้ชมอาจรับสารและเข้าใจเนื้อหาได้ไม่ครบถ้วน</label><br>
                         <label><input type="radio" name="post_q4" value="ค"> ค. Frame Rate จะเพิ่มขึ้น</label><br>
                         <label><input type="radio" name="post_q4" value="ง"> ง. Storyboard จะหายไป</label><br>
 
-                        <!-- ข้อ 5 -->
                         <p class="mt-3"><b>ข้อ 5: นักศึกษาต้องรวมภาพจากกล้อง เสียงจากไมโครโฟน และสื่ออื่นเพื่อถ่ายทอดสด ควรใช้โปรแกรมใดตามกิจกรรม</b></p>
                         <label><input type="radio" name="post_q5" value="ก"> ก. Adobe Illustrator</label><br>
                         <label><input type="radio" name="post_q5" value="ข"> ข. Adobe InDesign</label><br>
@@ -654,7 +629,6 @@
                 }
             });
         }
-    </script>
     </script>
 </body>
 </html>
