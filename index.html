@@ -408,7 +408,7 @@
 
                     try {
                         const cbName = 'jsonp_forgot_' + Math.random().toString(36).substring(2);
-                        const url = `${SCRIPT_URL}?action=forgot_password&username_or_email=${encodeURIComponent(result.value)}`;
+                        const url = `${SCRIPT_URL}?action=forgot_password&email=${encodeURIComponent(result.value)}`;
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
