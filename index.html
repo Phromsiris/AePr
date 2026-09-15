@@ -24,7 +24,7 @@
         <p class="text-gray-500 text-sm mt-1">ระบบลงทะเบียนและเข้าสู่บทเรียนออนไลน์</p>
     </header>
 
-    <!-- 2. ปุ่มกดสองปุ่มกลางหน้าจอ -->
+    <!-- 2. ปุ่มกดกลางหน้าจอ -->
     <main class="flex-grow flex items-center justify-center px-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center space-y-6">
             <div class="space-y-2">
@@ -39,6 +39,11 @@
                 <button onclick="openRegisterModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5">
                     ลงทะเบียนเข้าสู่ระบบ
                 </button>
+                
+                <!-- ปุ่มเพิ่มลิงก์ไปหนบทเรียนโดยตรง (สามารถเปลี่ยน URL ตามต้องการ) -->
+                <a href="https://www.viverse.com/FP2Px84" target="_blank" class="w-full block bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5 text-center">
+                    เข้าสู่บทเรียนโดยตรง
+                </a>
             </div>
         </div>
     </main>
@@ -48,11 +53,10 @@
         &copy; 2026 ระบบบทเรียนออนไลน์. All rights reserved.
     </footer>
 
-    <!-- JavaScript สำหรับจัดการ Popup และ JSONP -->
+    <!-- JavaScript สำหรับจัดการระบบ -->
     <script>
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
 
-        // ฟังก์ชันช่วยทำ JSONP Request เพื่อแก้ปัญหา Cross-Origin (CORS)
         function jsonp(url, callbackName) {
             return new Promise((resolve, reject) => {
                 const script = document.createElement('script');
@@ -71,7 +75,6 @@
             });
         }
 
-        // 3. หน้า Popup “ลงชื่อเข้าใช้”
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
@@ -137,13 +140,21 @@
             });
         }
 
-        // 4. หน้า Popup “ลงทะเบียนเข้าสู่ระบบ”
         function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
                 html: `
-                    <input type="text" id="reg-username" class="swal2-input" placeholder="ชื่อผู้ใช้">
-                    <input type="password" id="reg-password" class="swal2-input" placeholder="ตั้งรหัสผ่าน">
+                    <input type="text" id="reg-fullname" class="swal2-input" placeholder="ชื่อ - นามสกุล">
+                    <select id="reg-year" class="swal2-input" style="height: 50px; font-size: 1rem;">
+                        <option value="" disabled selected>-- เลือกชั้นปีที่กำลังศึกษา --</option>
+                        <option value="ปี 1">ชั้นปีที่ 1</option>
+                        <option value="ปี 2">ชั้นปีที่ 2</option>
+                        <option value="ปี 3">ชั้นปีที่ 3</option>
+                        <option value="ปี 4">ชั้นปีที่ 4</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                    <input type="text" id="reg-username" class="swal2-input" placeholder="ชื่อผู้ใช้ (Username)">
+                    <input type="password" id="reg-password" class="swal2-input" placeholder="ตั้งรหัสผ่าน (Password)">
                 `,
                 confirmButtonText: 'ลงทะเบียน',
                 confirmButtonColor: '#059669',
@@ -151,13 +162,16 @@
                 showCancelButton: true,
                 cancelButtonText: 'ยกเลิก',
                 preConfirm: () => {
+                    const fullname = document.getElementById('reg-fullname').value.trim();
+                    const year = document.getElementById('reg-year').value;
                     const username = document.getElementById('reg-username').value.trim();
                     const password = document.getElementById('reg-password').value.trim();
-                    if (!username || !password) {
-                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบถ้วน');
+
+                    if (!fullname || !year || !username || !password) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบทุกช่อง');
                         return false;
                     }
-                    return { username, password };
+                    return { fullname, year, username, password };
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
@@ -170,7 +184,7 @@
 
                     try {
                         const cbName = 'jsonp_reg_' + Math.random().toString(36).substring(2);
-                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}`;
+                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.year)}`;
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
