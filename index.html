@@ -372,12 +372,22 @@
             });
         }
 
+// ฟังก์ชัน Register (เพิ่มคำนำหน้าชื่อ)
         function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
                 html: `
-                    <input type="text" id="reg-fullname" class="swal2-input" placeholder="ชื่อ - นามสกุล">
-                    <select id="reg-year" class="swal2-input" style="height: 50px; font-size: 1rem;">
+                    <div style="display: flex; gap: 8px; margin-bottom: 1em;">
+                        <select id="reg-prefix" class="swal2-input" style="width: 35%; height: 50px; font-size: 1rem; margin: 0;">
+                            <option value="" disabled selected>คำนำหน้า</option>
+                            <option value="นาย">นาย</option>
+                            <option value="นางสาว">นางสาว</option>
+                            <option value="อาจารย์">อาจารย์</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                        <input type="text" id="reg-fullname" class="swal2-input" placeholder="ชื่อ - นามสกุล" style="width: 63%; margin: 0; height: 50px;">
+                    </div>
+                    <select id="reg-year" class="swal2-input" style="height: 50px; font-size: 1rem; margin-top: 0;">
                         <option value="" disabled selected>-- เลือกชั้นปี / สถานะ --</option>
                         <option value="ปี 1">ชั้นปีที่ 1</option>
                         <option value="ปี 2">ชั้นปีที่ 2</option>
@@ -396,16 +406,17 @@
                 showCancelButton: true,
                 cancelButtonText: 'ยกเลิก',
                 preConfirm: () => {
+                    const prefix = document.getElementById('reg-prefix').value;
                     const fullname = document.getElementById('reg-fullname').value.trim();
                     const year = document.getElementById('reg-year').value;
                     const username = document.getElementById('reg-username').value.trim();
                     const password = document.getElementById('reg-password').value.trim();
 
-                    if (!fullname || !year || !username || !password) {
-                        Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบทุกช่อง');
+                    if (!prefix || !fullname || !year || !username || !password) {
+                        Swal.showValidationMessage('กรุณากรอกข้อมูลและเลือกคำนำหน้าให้ครบทุกช่อง');
                         return false;
                     }
-                    return { fullname, year, username, password };
+                    return { prefix, fullname, year, username, password };
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
@@ -418,7 +429,7 @@
 
                     try {
                         const cbName = 'jsonp_reg_' + Math.random().toString(36).substring(2);
-                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.value.year)}`;
+                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&prefix=${encodeURIComponent(result.value.prefix)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.value.year)}`;
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
@@ -448,9 +459,7 @@
             });
         }
 
-// ==========================================
-        // ระบบแบบทดสอบก่อนเรียน (Pre-test) พร้อมส่งคะแนนเข้า Google Sheet
-        // ==========================================
+        // แบบทดสอบก่อนเรียน (Pre-test) พร้อมส่งคะแนนไปลงแถวเดียวกัน
         function openPreTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'pretest_done_' + username;
@@ -532,7 +541,6 @@
                     localStorage.setItem(checkKey, 'true');
                     localStorage.setItem('pretest_score_' + username, score);
 
-                    // ส่งคะแนนไปบันทึกที่ Google Sheet
                     try {
                         const cbName = 'jsonp_pre_' + Math.random().toString(36).substring(2);
                         const url = `${SCRIPT_URL}?action=save_score&username=${encodeURIComponent(username)}&test_type=Pre-test&score=${score}`;
@@ -551,9 +559,7 @@
             });
         }
 
-        // ==========================================
-        // ระบบแบบทดสอบหลังเรียน (Post-test) พร้อมส่งคะแนนเข้า Google Sheet
-        // ==========================================
+        // แบบทดสอบหลังเรียน (Post-test) พร้อมส่งคะแนนไปลงแถวเดียวกัน
         function openPostTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
             const checkKey = 'posttest_done_' + username;
@@ -635,7 +641,6 @@
                     localStorage.setItem(checkKey, 'true');
                     localStorage.setItem('posttest_score_' + username, score);
 
-                    // ส่งคะแนนไปบันทึกที่ Google Sheet
                     try {
                         const cbName = 'jsonp_post_' + Math.random().toString(36).substring(2);
                         const url = `${SCRIPT_URL}?action=save_score&username=${encodeURIComponent(username)}&test_type=Post-test&score=${score}`;
