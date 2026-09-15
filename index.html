@@ -24,7 +24,7 @@
         <p class="text-gray-500 text-sm mt-1">ระบบลงทะเบียนและเข้าสู่บทเรียนออนไลน์</p>
     </header>
 
-    <!-- 2. ปุ่มกดกลางหน้าจอ -->
+    <!-- 2. ปุ่มกดสองปุ่มกลางหน้าจอ -->
     <main class="flex-grow flex items-center justify-center px-4">
         <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md text-center space-y-6">
             <div class="space-y-2">
@@ -39,11 +39,6 @@
                 <button onclick="openRegisterModal()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5">
                     ลงทะเบียนเข้าสู่ระบบ
                 </button>
-                
-                <!-- ปุ่มเพิ่มลิงก์ไปหนบทเรียนโดยตรง (สามารถเปลี่ยน URL ตามต้องการ) -->
-                <a href="https://www.viverse.com/FP2Px84" target="_blank" class="w-full block bg-purple-600 hover:bg-purple-700 text-white font-medium py-3 px-4 rounded-xl shadow-lg transition duration-200 transform hover:-translate-y-0.5 text-center">
-                    เข้าสู่บทเรียนโดยตรง
-                </a>
             </div>
         </div>
     </main>
@@ -75,6 +70,7 @@
             });
         }
 
+        // 3. หน้า Popup “ลงชื่อเข้าใช้” -> เช็คข้อมูลผ่าน Google Sheet แล้วพาไป home.html
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
@@ -111,14 +107,18 @@
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
+                            // บันทึกสถานะว่าเข้าสู่ระบบแล้ว เพื่อให้ผ่านหน้ากั้นของ home.html
+                            sessionStorage.setItem('isLoggedIn', 'true');
+
                             Swal.fire({
                                 icon: 'success',
                                 title: 'เข้าสู่ระบบสำเร็จ',
-                                text: 'กำลังพาคุณไปยังบทเรียน...',
+                                text: 'กำลังพาคุณไปยังห้องเรียนเสมือน...',
                                 timer: 1500,
                                 showConfirmButton: false
                             }).then(() => {
-                                window.location.href = 'https://www.viverse.com/FP2Px84';
+                                // เชื่อมไปยังหน้า home.html ทันที
+                                window.location.href = 'home.html';
                             });
                         } else {
                             Swal.fire({
@@ -140,6 +140,7 @@
             });
         }
 
+        // 4. หน้า Popup “ลงทะเบียนเข้าสู่ระบบ” -> บันทึกลง Google Sheet
         function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
@@ -184,7 +185,7 @@
 
                     try {
                         const cbName = 'jsonp_reg_' + Math.random().toString(36).substring(2);
-                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.year)}`;
+                        const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.value.year)}`;
                         const res = await jsonp(url, cbName);
 
                         if (res.status === 'success') {
