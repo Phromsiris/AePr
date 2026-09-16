@@ -337,15 +337,15 @@
             appendMessageToUI(data.sender, data.text, data.time);
         });
 
-// ส่งข้อความไปยัง Firebase Database (เก็บบันทึก Username จริงหลังบ้าน แต่หน้าจอโชว์เป็นผู้เยี่ยมชม)
+        // ส่งข้อความไปยัง Firebase Database (เก็บบันทึก Username จริงหลังบ้าน แต่หน้าจอโชว์เป็นผู้เยี่ยมชม)
         function sendFirebaseChatMessage() {
             const input = document.getElementById('chat-input-msg');
             const text = input.value.trim();
             if (!text) return;
 
-            const username = sessionStorage.getItem('currentUsername'] || 'guest';
+            const username = sessionStorage.getItem('currentUsername') || 'guest';
             
-            // กำหนดชื่อที่จะแสดงบนหน้าจอ UI
+            // กำหนดชื่อที่จะแสดงบนหน้าจอเว็บไซต์
             let displaySender = 'ผู้เยี่ยมชม';
             if (username === 'dachie') {
                 displaySender = 'แอดมิน (ผู้สอน)';
@@ -353,10 +353,10 @@
 
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
-            // ส่งข้อมูลขึ้น Firebase โดยแยกเก็บทั้ง "ชื่อที่แสดง" และ "Username จริง" ไว้ตรวจสอบหลังบ้าน
+            // ส่งข้อมูลขึ้น Firebase โดยเก็บทั้ง "username" ไว้เช็กหลังบ้าน และ "sender" ไว้โชว์หน้าจอ
             db.ref('messages').push({
-                username: username, // <--- Username จริงสำหรับดูหลังบ้าน
-                sender: displaySender, // <--- ชื่อที่จะเอาไปโชว์หน้าเว็บ
+                username: username,     // <--- บันทึก Username จริงเพื่อดูหลังบ้าน
+                sender: displaySender,  // <--- ชื่อที่จะนำไปแสดงผลบนหน้าจอ UI
                 text: text,
                 time: time
             });
