@@ -335,14 +335,14 @@
             appendMessageToUI(data.sender, data.text, data.time);
         });
 
-        // ส่งข้อความไปยัง Firebase Database (หากเป็น dachie จะเปลี่ยนชื่อเป็น "แอดมิน (ผู้สอน)")
+        // ส่งข้อความไปยัง Firebase Database (dachie แสดงเป็น "แอดมิน (ผู้สอน)", นอกนั้นแสดงเป็น "ผู้เยี่ยมชม")
         function sendFirebaseChatMessage() {
             const input = document.getElementById('chat-input-msg');
             const text = input.value.trim();
             if (!text) return;
 
             const username = sessionStorage.getItem('currentUsername') || '';
-            let sender = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
+            let sender = 'ผู้เยี่ยมชม';
 
             if (username === 'dachie') {
                 sender = 'แอดมิน (ผู้สอน)';
@@ -370,13 +370,13 @@
         function appendMessageToUI(sender, text, time) {
             const msgContainer = document.getElementById('chat-messages');
             const username = sessionStorage.getItem('currentUsername') || '';
-            let currentName = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
+            let currentName = 'ผู้เยี่ยมชม';
 
             if (username === 'dachie') {
                 currentName = 'แอดมิน (ผู้สอน)';
             }
 
-            const isMe = (sender === currentName || (username === 'dachie' && sender === 'แอดมิน (ผู้สอน)'));
+            const isMe = (sender === currentName);
 
             const bubble = document.createElement('div');
             if (isMe) {
