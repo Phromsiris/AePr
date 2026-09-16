@@ -314,7 +314,7 @@
     <!-- ========================================== -->
     <script>
         // ----------------------------------------------------
-        // ตั้งค่าการเชื่อมต่อ Firebase (ใส่ Config ของคุณเรียบร้อยแล้ว)
+        // ตั้งค่าการเชื่อมต่อ Firebase
         // ----------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyDcxsj2SNia9NHyFgJ9uP453uTTZjWITgE",
@@ -333,13 +333,13 @@
             appendMessageToUI(data.sender, data.text, data.time);
         });
 
-        // ส่งข้อความไปยัง Firebase Database
+        // ส่งข้อความไปยัง Firebase Database (ดึงชื่อจริง-นามสกุลมาใช้)
         function sendFirebaseChatMessage() {
             const input = document.getElementById('chat-input-msg');
             const text = input.value.trim();
             if (!text) return;
 
-            const sender = sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
+            const sender = sessionStorage.getItem('currentFullname') || sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
             db.ref('messages').push({
@@ -361,7 +361,7 @@
         // แสดงข้อความลงบนหน้าจอ UI
         function appendMessageToUI(sender, text, time) {
             const msgContainer = document.getElementById('chat-messages');
-            const currentName = sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
+            const currentName = sessionStorage.getItem('currentFullname') || sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
             const isMe = (sender === currentName);
 
             const bubble = document.createElement('div');
@@ -409,8 +409,8 @@
         function showHome() {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('home-section').classList.remove('hidden');
-            const username = sessionStorage.getItem('currentUsername') || 'นักศึกษา';
-            document.getElementById('user-display-name').innerText = `สวัสดี, ${username}`;
+            const fullname = sessionStorage.getItem('currentFullname') || sessionStorage.getItem('currentUsername') || 'นักศึกษา';
+            document.getElementById('user-display-name').innerText = `สวัสดี, ${fullname}`;
         }
 
         function togglePortfolioMenu() {
@@ -443,6 +443,7 @@
             });
         }
 
+        // ฟังก์ชัน Login
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
@@ -478,6 +479,8 @@
                         if (res.status === 'success') {
                             sessionStorage.setItem('isLoggedIn', 'true');
                             sessionStorage.setItem('currentUsername', result.value.username);
+                            sessionStorage.setItem('currentFullname', res.fullname || result.value.username);
+
                             Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false }).then(() => showHome());
                         } else {
                             Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', confirmButtonColor: '#4f46e5' });
@@ -559,7 +562,7 @@
                         Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบทุกช่องครับ');
                         return false;
                     }
-                    return { prefix, fullname, year, email, username, password };
+                    return { prefix, fullname: prefix + ' ' + fullname, year, email, username, password };
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
