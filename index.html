@@ -194,6 +194,8 @@
 
         <!-- Footer Widgets -->
         <footer class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+            
+            <!-- ซ้าย: ตารางกำหนดการส่งผลงาน -->
             <div class="bg-white/95 border border-amber-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between">
                 <div>
                     <h3 class="text-sm font-bold text-amber-700 mb-3 flex items-center gap-2">📅 ตารางกำหนดการส่งผลงาน</h3>
@@ -231,15 +233,31 @@
                 </div>
             </div>
 
-            <div class="bg-white/95 border border-pink-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between">
-                <div>
-                    <h3 class="text-sm font-bold text-pink-700 mb-2 flex items-center gap-2">☁️ ลิงก์ส่งผลงาน</h3>
-                    <p class="text-xs text-gray-500 mb-4">คลิกที่ปุ่มด้านล่างเพื่อส่งผลงานของคุณ (รองรับไฟล์วิดีโอ รูปภาพ เอกสาร ฯลฯ)</p>
+            <!-- ขวา: ลิงก์ส่งผลงาน และ รายละเอียดของกิจกรรมในรายวิชา (E-Book) -->
+            <div class="flex flex-col gap-4">
+                <!-- กล่องลิงก์ส่งผลงาน -->
+                <div class="bg-white/95 border border-pink-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-pink-700 mb-2 flex items-center gap-2">☁️ ลิงก์ส่งผลงาน</h3>
+                        <p class="text-xs text-gray-500 mb-3">คลิกที่ปุ่มด้านล่างเพื่อส่งผลงานของคุณ (รองรับไฟล์วิดีโอ รูปภาพ เอกสาร ฯลฯ)</p>
+                    </div>
+                    <div class="text-center py-2">
+                        <a href="https://forms.gle/hSqDZeWgQWMfvvEH8" target="_blank" class="inline-block bg-pink-500 hover:bg-pink-600 text-white text-sm md:text-base font-semibold py-2.5 px-6 rounded-2xl shadow-md transition transform hover:-translate-y-0.5">📤 ส่งผลงานทันที ➔</a>
+                    </div>
                 </div>
-                <div class="text-center py-4">
-                    <a href="https://forms.gle/hSqDZeWgQWMfvvEH8" target="_blank" class="inline-block bg-pink-500 hover:bg-pink-600 text-white text-sm md:text-base font-semibold py-3 px-8 rounded-2xl shadow-md transition transform hover:-translate-y-0.5">📤 ส่งผลงานทันที ➔</a>
+
+                <!-- กล่อง E-Book รายละเอียดของกิจกรรมในรายวิชา -->
+                <div class="bg-white/95 border border-purple-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-sm font-bold text-purple-700 mb-2 flex items-center gap-2">📚 รายละเอียดของกิจกรรมในรายวิชา</h3>
+                        <p class="text-xs text-gray-500 mb-3">อ่านรายละเอียดคู่มือและกิจกรรมทั้งหมดในรูปแบบ E-Book (Flip Book)</p>
+                    </div>
+                    <div class="text-center py-2">
+                        <a href="https://heyzine.com/flip-book/1816f443be.html" target="_blank" class="inline-block bg-purple-600 hover:bg-purple-700 text-white text-sm md:text-base font-semibold py-2.5 px-6 rounded-2xl shadow-md transition transform hover:-translate-y-0.5">📖 เปิดอ่าน E-Book ➔</a>
+                    </div>
                 </div>
             </div>
+
         </footer>
 
         <!-- Navbar Navigator -->
