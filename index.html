@@ -10,6 +10,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <!-- Google Font: Prompt -->
     <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase App (Modular Scripts) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
     <style>
         body {
             font-family: 'Prompt', sans-serif;
@@ -275,7 +280,7 @@
 
 
     <!-- ========================================== -->
-    <!-- ส่วนของ Widget แชทสด (ลอยอยู่มุมขวาล่าง) -->
+    <!-- ส่วนของ Widget แชทสด (เชื่อมต่อ Firebase แล้ว) -->
     <!-- ========================================== -->
     <div class="fixed bottom-5 right-5 z-50">
         <button onclick="toggleChatBox()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105">
@@ -292,23 +297,12 @@
             <button onclick="toggleChatBox()" class="text-white hover:text-gray-200 font-bold text-lg px-2">✕</button>
         </div>
 
-        <div id="chat-messages" class="p-4 h-72 overflow-y-auto space-y-3 bg-gray-50 text-sm flex flex-col">
-            <div class="self-start bg-white border border-gray-200 rounded-2xl py-2 px-3 max-w-[80%] shadow-sm">
-                <p class="text-xs font-bold text-indigo-600">แอดมิน (ผู้สอน)</p>
-                <p class="text-gray-700">สวัสดีครับ มีข้อสงสัยเรื่องบทเรียนส่วนไหนสอบถามได้เลยนะครับ</p>
-                <span class="text-[10px] text-gray-400 block text-right mt-1">10:30 น.</span>
-            </div>
-
-            <div class="self-end bg-indigo-600 text-white rounded-2xl py-2 px-3 max-w-[80%] shadow-sm">
-                <p class="text-xs font-bold text-indigo-200">คุณ (ผู้เข้าชม)</p>
-                <p>สวัสดีครับ ขอสอบถามเรื่องกำหนดส่งงานชิ้นที่ 2 ครับ</p>
-                <span class="text-[10px] text-indigo-200 block text-right mt-1">10:31 น.</span>
-            </div>
-        </div>
+        <!-- พื้นที่แสดงข้อความ Realtime จาก Firebase -->
+        <div id="chat-messages" class="p-4 h-72 overflow-y-auto space-y-3 bg-gray-50 text-sm flex flex-col"></div>
 
         <div class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
-            <input type="text" id="chat-input-msg" placeholder="พิมพ์ข้อความที่นี่..." class="flex-grow border border-gray-200 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500">
-            <button onclick="sendChatMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-2xl text-sm font-semibold transition">
+            <input type="text" id="chat-input-msg" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="handleChatKeyPress(event)" class="flex-grow border border-gray-200 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500">
+            <button onclick="sendFirebaseChatMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-2xl text-sm font-semibold transition">
                 ส่ง
             </button>
         </div>
@@ -316,9 +310,94 @@
 
 
     <!-- ========================================== -->
-    <!-- ส่วนควบคุม JavaScript -->
+    <!-- ส่วนควบคุม JavaScript & Firebase Setup -->
     <!-- ========================================== -->
     <script>
+        // ----------------------------------------------------
+        // ตั้งค่าการเชื่อมต่อ Firebase (ใส่ Config ของคุณเรียบร้อยแล้ว)
+        // ----------------------------------------------------
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcxsj2SNia9NHyFgJ9uP453uTTZjWITgE",
+            authDomain: "ca-virtual-classroom-chat.firebaseapp.com",
+            projectId: "ca-virtual-classroom-chat",
+            storageBucket: "ca-virtual-classroom-chat.firebasestorage.app",
+            messagingSenderId: "208658083032",
+            appId: "1:208658083032:web:a08966c6bf529268457bad"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // โหลดและฟังการเปลี่ยนแปลงข้อความแบบ Realtime จาก Firebase
+        db.ref('messages').on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            appendMessageToUI(data.sender, data.text, data.time);
+        });
+
+        // ส่งข้อความไปยัง Firebase Database
+        function sendFirebaseChatMessage() {
+            const input = document.getElementById('chat-input-msg');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const sender = sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
+            const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+
+            db.ref('messages').push({
+                sender: sender,
+                text: text,
+                time: time
+            });
+
+            input.value = '';
+        }
+
+        // กด Enter เพื่อส่งข้อความได้
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendFirebaseChatMessage();
+            }
+        }
+
+        // แสดงข้อความลงบนหน้าจอ UI
+        function appendMessageToUI(sender, text, time) {
+            const msgContainer = document.getElementById('chat-messages');
+            const currentName = sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
+            const isMe = (sender === currentName);
+
+            const bubble = document.createElement('div');
+            if (isMe) {
+                bubble.className = "self-end bg-indigo-600 text-white rounded-2xl py-2 px-3 max-w-[80%] shadow-sm";
+                bubble.innerHTML = `
+                    <p class="text-xs font-bold text-indigo-200">คุณ (${sender})</p>
+                    <p>${text}</p>
+                    <span class="text-[10px] text-indigo-200 block text-right mt-1">${time}</span>
+                `;
+            } else {
+                bubble.className = "self-start bg-white border border-gray-200 rounded-2xl py-2 px-3 max-w-[80%] shadow-sm";
+                bubble.innerHTML = `
+                    <p class="text-xs font-bold text-indigo-600">${sender}</p>
+                    <p class="text-gray-700">${text}</p>
+                    <span class="text-[10px] text-gray-400 block text-right mt-1">${time}</span>
+                `;
+            }
+
+            msgContainer.appendChild(bubble);
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
+
+        // ฟังก์ชันเปิด-ปิด กล่องแชท
+        function toggleChatBox() {
+            const box = document.getElementById('chat-widget-box');
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
+            } else {
+                box.classList.add('hidden');
+            }
+        }
+
+        // ----------------------------------------------------
+        // ระบบเดิมของเว็บไซต์ (Login / ทดสอบ / Google Apps Script)
+        // ----------------------------------------------------
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -346,37 +425,6 @@
             }
         }
 
-        // ฟังก์ชันเปิด-ปิด กล่องแชท
-        function toggleChatBox() {
-            const box = document.getElementById('chat-widget-box');
-            if (box.classList.contains('hidden')) {
-                box.classList.remove('hidden');
-            } else {
-                box.classList.add('hidden');
-            }
-        }
-
-        // ฟังก์ชันจำลองการส่งข้อความแชท
-        function sendChatMessage() {
-            const input = document.getElementById('chat-input-msg');
-            const msgContainer = document.getElementById('chat-messages');
-            const text = input.value.trim();
-
-            if (!text) return;
-
-            const bubble = document.createElement('div');
-            bubble.className = "self-end bg-indigo-600 text-white rounded-2xl py-2 px-3 max-w-[80%] shadow-sm";
-            bubble.innerHTML = `
-                <p class="text-xs font-bold text-indigo-200">คุณ (ผู้เข้าชม)</p>
-                <p>${text}</p>
-                <span class="text-[10px] text-indigo-200 block text-right mt-1">เพิ่งส่ง</span>
-            `;
-            msgContainer.appendChild(bubble);
-            
-            input.value = '';
-            msgContainer.scrollTop = msgContainer.scrollHeight;
-        }
-
         function jsonp(url, callbackName) {
             return new Promise((resolve, reject) => {
                 const script = document.createElement('script');
@@ -395,7 +443,6 @@
             });
         }
 
-        // ฟังก์ชัน Login
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
@@ -422,13 +469,7 @@
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'กำลังตรวจสอบ...',
-                        text: 'โปรดรอสักครู่',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
-                    });
-
+                    Swal.fire({ title: 'กำลังตรวจสอบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
                         const cbName = 'jsonp_login_' + Math.random().toString(36).substring(2);
                         const url = `${SCRIPT_URL}?action=login&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}`;
@@ -437,98 +478,47 @@
                         if (res.status === 'success') {
                             sessionStorage.setItem('isLoggedIn', 'true');
                             sessionStorage.setItem('currentUsername', result.value.username);
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'เข้าสู่ระบบสำเร็จ',
-                                text: 'กำลังเข้าสู่ห้องเรียนเสมือน...',
-                                timer: 1500,
-                                showConfirmButton: false
-                            }).then(() => {
-                                showHome();
-                            });
+                            Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1500, showConfirmButton: false }).then(() => showHome());
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'เกิดข้อผิดพลาด',
-                                text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง',
-                                confirmButtonColor: '#4f46e5'
-                            });
+                            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', confirmButtonColor: '#4f46e5' });
                         }
                     } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'เชื่อมต่อระบบผิดพลาด',
-                            text: 'ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้',
-                            confirmButtonColor: '#4f46e5'
-                        });
+                        Swal.fire({ icon: 'error', title: 'เชื่อมต่อระบบผิดพลาด', confirmButtonColor: '#4f46e5' });
                     }
                 }
             });
         }
 
-        // ฟังก์ชันกู้คืนรหัสผ่าน
         function openForgotPasswordModal() {
             Swal.fire({
                 title: 'กู้คืนรหัสผ่าน',
-                html: `
-                    <p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกอีเมลที่คุณใช้ลงทะเบียน ระบบจะแสดงรหัสผ่านของคุณขึ้นมาทันที</p>
-                    <input type="text" id="forgot-input" class="swal2-input" placeholder="อีเมล">
-                `,
+                html: `<p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกอีเมลที่คุณใช้ลงทะเบียน</p><input type="text" id="forgot-input" class="swal2-input" placeholder="อีเมล">`,
                 confirmButtonText: 'ตรวจสอบรหัสผ่าน',
                 confirmButtonColor: '#4f46e5',
-                focusConfirm: false,
-                showCancelButton: true,
-                cancelButtonText: 'กลับ',
                 preConfirm: () => {
-                    const inputVal = document.getElementById('forgot-input').value.trim();
-                    if (!inputVal) {
-                        Swal.showValidationMessage('กรุณากรอกอีเมลครับ');
-                        return false;
-                    }
-                    return inputVal;
+                    const val = document.getElementById('forgot-input').value.trim();
+                    if (!val) { Swal.showValidationMessage('กรุณากรอกอีเมลครับ'); return false; }
+                    return val;
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'กำลังค้นหาข้อมูล...',
-                        text: 'โปรดรอสักครู่',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
-                    });
-
+                    Swal.fire({ title: 'กำลังค้นหา...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
                         const cbName = 'jsonp_forgot_' + Math.random().toString(36).substring(2);
                         const url = `${SCRIPT_URL}?action=forgot_password&email=${encodeURIComponent(result.value)}`;
                         const res = await jsonp(url, cbName);
-
                         if (res.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'กู้คืนรหัสผ่านสำเร็จ',
-                                html: res.message,
-                                confirmButtonColor: '#4f46e5'
-                            });
+                            Swal.fire({ icon: 'success', title: 'สำเร็จ', html: res.message, confirmButtonColor: '#4f46e5' });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'ไม่พบข้อมูล',
-                                text: res.message,
-                                confirmButtonColor: '#4f46e5'
-                            });
+                            Swal.fire({ icon: 'error', title: 'ไม่พบข้อมูล', text: res.message, confirmButtonColor: '#4f46e5' });
                         }
-                    } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'เกิดข้อผิดพลาด',
-                            text: 'ไม่สามารถเชื่อมต่อกับระบบได้',
-                            confirmButtonColor: '#4f46e5'
-                        });
+                    } catch (e) {
+                        Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', confirmButtonColor: '#4f46e5' });
                     }
                 }
             });
         }
 
-        // ฟังก์ชัน Register
         function openRegisterModal() {
             Swal.fire({
                 title: 'ลงทะเบียนเข้าสู่ระบบ',
@@ -551,17 +541,13 @@
                         <option value="ปี 4">ชั้นปีที่ 4</option>
                         <option value="อาจารย์">อาจารย์</option>
                         <option value="บุคคลภายนอก">บุคคลภายนอก</option>
-                        <option value="อื่นๆ">อื่นๆ</option>
                     </select>
-                    <input type="email" id="reg-email" class="swal2-input" placeholder="อีเมลสำหรับกู้คืนรหัสผ่าน (Email)">
+                    <input type="email" id="reg-email" class="swal2-input" placeholder="อีเมล (Email)">
                     <input type="text" id="reg-username" class="swal2-input" placeholder="ชื่อผู้ใช้ (Username)">
                     <input type="password" id="reg-password" class="swal2-input" placeholder="ตั้งรหัสผ่าน (Password)">
                 `,
                 confirmButtonText: 'ลงทะเบียน',
                 confirmButtonColor: '#059669',
-                focusConfirm: false,
-                showCancelButton: true,
-                cancelButtonText: 'ยกเลิก',
                 preConfirm: () => {
                     const prefix = document.getElementById('reg-prefix').value;
                     const fullname = document.getElementById('reg-fullname').value.trim();
@@ -569,7 +555,6 @@
                     const email = document.getElementById('reg-email').value.trim();
                     const username = document.getElementById('reg-username').value.trim();
                     const password = document.getElementById('reg-password').value.trim();
-
                     if (!prefix || !fullname || !year || !email || !username || !password) {
                         Swal.showValidationMessage('กรุณากรอกข้อมูลให้ครบทุกช่องครับ');
                         return false;
@@ -578,68 +563,36 @@
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    Swal.fire({
-                        title: 'กำลังบันทึกข้อมูล...',
-                        text: 'โปรดรอสักครู่',
-                        allowOutsideClick: false,
-                        didOpen: () => { Swal.showLoading(); }
-                    });
-
+                    Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
                     try {
                         const cbName = 'jsonp_reg_' + Math.random().toString(36).substring(2);
                         const url = `${SCRIPT_URL}?action=register&username=${encodeURIComponent(result.value.username)}&password=${encodeURIComponent(result.value.password)}&prefix=${encodeURIComponent(result.value.prefix)}&fullname=${encodeURIComponent(result.value.fullname)}&year=${encodeURIComponent(result.value.year)}&email=${encodeURIComponent(result.value.email)}`;
                         const res = await jsonp(url, cbName);
-
                         if (res.status === 'success') {
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'บันทึกสำเร็จ',
-                                text: 'ลงทะเบียนสำเร็จ กรุณาลงชื่อเข้าใช้',
-                                confirmButtonColor: '#059669'
-                            });
+                            Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', text: 'ลงทะเบียนสำเร็จ กรุณาลงชื่อเข้าใช้', confirmButtonColor: '#059669' });
                         } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'ไม่สามารถลงทะเบียนได้',
-                                text: res.message || 'ชื่อผู้ใช้นี้อาจถูกใช้งานแล้ว',
-                                confirmButtonColor: '#059669'
-                            });
+                            Swal.fire({ icon: 'error', title: 'ไม่สามารถลงทะเบียนได้', text: res.message, confirmButtonColor: '#059669' });
                         }
-                    } catch (error) {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'เชื่อมต่อระบบผิดพลาด',
-                            text: 'ไม่สามารถเชื่อมต่อกับฐานข้อมูลได้',
-                            confirmButtonColor: '#059669'
-                        });
+                    } catch (e) {
+                        Swal.fire({ icon: 'error', title: 'เชื่อมต่อระบบผิดพลาด', confirmButtonColor: '#059669' });
                     }
                 }
             });
         }
 
-        // ระบบแบบทดสอบก่อนเรียน
         async function openPreTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
-            Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
+            Swal.fire({ title: 'กำลังตรวจสอบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
                 const cbName = 'jsonp_check_pre_' + Math.random().toString(36).substring(2);
                 const url = `${SCRIPT_URL}?action=check_score&username=${encodeURIComponent(username)}`;
                 const res = await jsonp(url, cbName);
                 Swal.close();
-
                 if (res.status === 'success' && res.pre !== null && res.pre !== undefined && res.pre !== "") {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'ไม่สามารถทำซ้ำได้',
-                        html: `คุณได้ทำแบบทดสอบก่อนเรียนไปแล้วครับ<br><b>คะแนนที่คุณทำได้: ${res.pre} / 5 คะแนน</b>`,
-                        confirmButtonColor: '#10b981'
-                    });
+                    Swal.fire({ icon: 'warning', title: 'ไม่สามารถทำซ้ำได้', html: `คุณได้ทำแบบทดสอบก่อนเรียนไปแล้ว<br><b>คะแนน: ${res.pre} / 5</b>`, confirmButtonColor: '#10b981' });
                     return;
                 }
-            } catch (e) {
-                Swal.close();
-            }
+            } catch (e) { Swal.close(); }
 
             Swal.fire({
                 title: '📝 แบบทดสอบก่อนเรียน (5 ข้อ)',
@@ -650,25 +603,21 @@
                         <label><input type="radio" name="pre_q1" value="ข"> ข. ใช้วางแผนลำดับภาพและเหตุการณ์ก่อนถ่ายทำ</label><br>
                         <label><input type="radio" name="pre_q1" value="ค"> ค. ใช้ปรับสีวิดีโอ</label><br>
                         <label><input type="radio" name="pre_q1" value="ง"> ง. ใช้เผยแพร่วิดีโอ</label><br>
-
                         <p class="mt-3"><b>ข้อ 2: Adobe Premiere เหมาะกับงานใดมากที่สุด</b></p>
                         <label><input type="radio" name="pre_q2" value="ก"> ก. จัดลำดับและตัดต่อวิดีโอ</label><br>
                         <label><input type="radio" name="pre_q2" value="ข"> ข. สร้างเอกสารข้อความ</label><br>
                         <label><input type="radio" name="pre_q2" value="ค"> ค. สร้างตารางคำนวณ</label><br>
                         <label><input type="radio" name="pre_q2" value="ง"> ง. ออกแบบเว็บไซต์</label><br>
-
                         <p class="mt-3"><b>ข้อ 3: Timeline ในโปรแกรมตัดต่อมีหน้าที่หลักอย่างไร</b></p>
                         <label><input type="radio" name="pre_q3" value="ก"> ก. ใช้เปลี่ยนเลนส์กล้อง</label><br>
                         <label><input type="radio" name="pre_q3" value="ข"> ข. ใช้บันทึกเสียงเท่านั้น</label><br>
                         <label><input type="radio" name="pre_q3" value="ค"> ค. ใช้เชื่อมต่ออินเทอร์เน็ต</label><br>
                         <label><input type="radio" name="pre_q3" value="ง"> ง. แสดงพื้นที่จัดวางคลิปตามลำดับเวลา</label><br>
-
                         <p class="mt-3"><b>ข้อ 4: เสียงมีความสำคัญต่อการผลิตวิดีโออย่างไร</b></p>
                         <label><input type="radio" name="pre_q4" value="ก"> ก. มีไว้เพิ่มขนาดไฟล์</label><br>
                         <label><input type="radio" name="pre_q4" value="ข"> ข. ไม่มีผลต่อความเข้าใจ</label><br>
                         <label><input type="radio" name="pre_q4" value="ค"> ค. ใช้แทนภาพได้ทุกกรณี</label><br>
                         <label><input type="radio" name="pre_q4" value="ง"> ง. ช่วยสนับสนุนการสื่อสารและสร้างอารมณ์ของเนื้อหา</label><br>
-
                         <p class="mt-3"><b>ข้อ 5: OBS จากกิจกรรมในรายวิชาถูกนำมาใช้เพื่อวัตถุประสงค์ใด</b></p>
                         <label><input type="radio" name="pre_q5" value="ก"> ก. วาด Storyboard</label><br>
                         <label><input type="radio" name="pre_q5" value="ข"> ข. การถ่ายทอดสดและจัดการแหล่งภาพ/เสียง</label><br>
@@ -679,103 +628,73 @@
                 confirmButtonText: 'ส่งคำตอบ',
                 confirmButtonColor: '#10b981',
                 width: '650px',
-                focusConfirm: false,
                 preConfirm: () => {
                     const q1 = document.querySelector('input[name="pre_q1"]:checked');
                     const q2 = document.querySelector('input[name="pre_q2"]:checked');
                     const q3 = document.querySelector('input[name="pre_q3"]:checked');
                     const q4 = document.querySelector('input[name="pre_q4"]:checked');
                     const q5 = document.querySelector('input[name="pre_q5"]:checked');
-
-                    if (!q1 || !q2 || !q3 || !q4 || !q5) {
-                        Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ');
-                        return false;
-                    }
-
+                    if (!q1 || !q2 || !q3 || !q4 || !q5) { Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ'); return false; }
                     let score = 0;
                     if (q1.value === 'ข') score++;
                     if (q2.value === 'ก') score++;
                     if (q3.value === 'ง') score++;
                     if (q4.value === 'ง') score++;
                     if (q5.value === 'ข') score++;
-
                     return score;
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     const score = result.value;
                     Swal.fire({ title: 'กำลังบันทึกคะแนน...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
                     try {
                         const cbName = 'jsonp_pre_' + Math.random().toString(36).substring(2);
                         const url = `${SCRIPT_URL}?action=save_score&username=${encodeURIComponent(username)}&test_type=Pre-test&score=${score}`;
                         await jsonp(url, cbName);
-                    } catch (e) {
-                        console.error('Save score error', e);
-                    }
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'ส่งคำตอบสำเร็จ!',
-                        html: `บันทึกคะแนนเรียบร้อยแล้ว<br><b>คะแนนทดสอบก่อนเรียนของคุณ: ${score} / 5 คะแนน</b>`,
-                        confirmButtonColor: '#10b981'
-                    });
+                    } catch (e) { console.error(e); }
+                    Swal.fire({ icon: 'success', title: 'ส่งคำตอบสำเร็จ!', html: `คะแนนของคุณ: ${score} / 5 คะแนน`, confirmButtonColor: '#10b981' });
                 }
             });
         }
 
-        // ระบบแบบทดสอบหลังเรียน
         async function openPostTest() {
             const username = sessionStorage.getItem('currentUsername') || 'guest';
-            Swal.fire({ title: 'กำลังตรวจสอบข้อมูล...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
+            Swal.fire({ title: 'กำลังตรวจสอบ...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
             try {
                 const cbName = 'jsonp_check_post_' + Math.random().toString(36).substring(2);
                 const url = `${SCRIPT_URL}?action=check_score&username=${encodeURIComponent(username)}`;
                 const res = await jsonp(url, cbName);
                 Swal.close();
-
                 if (res.status === 'success' && res.post !== null && res.post !== undefined && res.post !== "") {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'ไม่สามารถทำซ้ำได้',
-                        html: `คุณได้ทำแบบทดสอบหลังเรียนไปแล้วครับ<br><b>คะแนนที่คุณทำได้: ${res.post} / 5 คะแนน</b>`,
-                        confirmButtonColor: '#3b82f6'
-                    });
+                    Swal.fire({ icon: 'warning', title: 'ไม่สามารถทำซ้ำได้', html: `คุณได้ทำแบบทดสอบหลังเรียนไปแล้ว<br><b>คะแนน: ${res.post} / 5</b>`, confirmButtonColor: '#3b82f6' });
                     return;
                 }
-            } catch (e) {
-                Swal.close();
-            }
+            } catch (e) { Swal.close(); }
 
             Swal.fire({
                 title: '📊 แบบทดสอบหลังเรียน (5 ข้อ)',
                 html: `
                     <div style="text-align: left; font-size: 0.9rem;" class="space-y-4 max-h-[60vh] overflow-y-auto p-2">
-                        <p><b>ข้อ 1: ก่อนถ่ายทำฉากสนทนา นักศึกษาต้องการกำหนดลำดับภาพและมุมกล้องให้ทีมเข้าใจตรงกัน ควรจัดทำสิ่งใดก่อน</b></p>
+                        <p><b>ข้อ 1: ก่อนถ่ายทำฉากสนทนา นักศึกษาต้องการกำหนดลำดับภาพและมุมกล้องให้ทีมเข้าใจตรงกัน ควรทำสิ่งใดก่อน</b></p>
                         <label><input type="radio" name="post_q1" value="ก"> ก. Audio Mixer</label><br>
                         <label><input type="radio" name="post_q1" value="ข"> ข. Storyboard</label><br>
                         <label><input type="radio" name="post_q1" value="ค"> ค. Color Preset</label><br>
                         <label><input type="radio" name="post_q1" value="ง"> ง. Export Setting</label><br>
-
                         <p class="mt-3"><b>ข้อ 2: เมื่อถ่ายทำเสร็จและต้องนำคลิปหลายช็อตมาเรียงเป็นเรื่องเดียวกัน โปรแกรมใดเหมาะกับงานหลักนี้</b></p>
                         <label><input type="radio" name="post_q2" value="ก"> ก. Adobe Illustrator</label><br>
                         <label><input type="radio" name="post_q2" value="ข"> ข. OBS</label><br>
                         <label><input type="radio" name="post_q2" value="ค"> ค. Adobe Premiere</label><br>
                         <label><input type="radio" name="post_q2" value="ง"> ง. Adobe Photoshop</label><br>
-
                         <p class="mt-3"><b>ข้อ 3: ในโปรแกรมตัดต่อ พื้นที่ที่ใช้วางคลิปภาพและเสียงตามลำดับเวลาคือส่วนใด</b></p>
                         <label><input type="radio" name="post_q3" value="ก"> ก. Timeline</label><br>
                         <label><input type="radio" name="post_q3" value="ข"> ข. Source</label><br>
                         <label><input type="radio" name="post_q3" value="ค"> ค. Canvas</label><br>
                         <label><input type="radio" name="post_q3" value="ง"> ง. Browser</label><br>
-
                         <p class="mt-3"><b>ข้อ 4: หากภาพดีแต่เสียงสนทนาเบามาก ผลกระทบสำคัญที่สุดคือข้อใด</b></p>
                         <label><input type="radio" name="post_q4" value="ก"> ก. ภาพจะเปลี่ยนความละเอียดทันที</label><br>
                         <label><input type="radio" name="post_q4" value="ข"> ข. ผู้ชมอาจรับสารและเข้าใจเนื้อหาได้ไม่ครบถ้วน</label><br>
                         <label><input type="radio" name="post_q4" value="ค"> ค. Frame Rate จะเพิ่มขึ้น</label><br>
                         <label><input type="radio" name="post_q4" value="ง"> ง. Storyboard จะหายไป</label><br>
-
                         <p class="mt-3"><b>ข้อ 5: นักศึกษาต้องรวมภาพจากกล้อง เสียงจากไมโครโฟน และสื่ออื่นเพื่อถ่ายทอดสด ควรใช้โปรแกรมใดตามกิจกรรม</b></p>
                         <label><input type="radio" name="post_q5" value="ก"> ก. Adobe Illustrator</label><br>
                         <label><input type="radio" name="post_q5" value="ข"> ข. Adobe InDesign</label><br>
@@ -786,47 +705,31 @@
                 confirmButtonText: 'ส่งคำตอบ',
                 confirmButtonColor: '#3b82f6',
                 width: '650px',
-                focusConfirm: false,
                 preConfirm: () => {
                     const q1 = document.querySelector('input[name="post_q1"]:checked');
                     const q2 = document.querySelector('input[name="post_q2"]:checked');
                     const q3 = document.querySelector('input[name="post_q3"]:checked');
                     const q4 = document.querySelector('input[name="post_q4"]:checked');
                     const q5 = document.querySelector('input[name="post_q5"]:checked');
-
-                    if (!q1 || !q2 || !q3 || !q4 || !q5) {
-                        Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ');
-                        return false;
-                    }
-
+                    if (!q1 || !q2 || !q3 || !q4 || !q5) { Swal.showValidationMessage('กรุณาตอบคำถามให้ครบทุกข้อครับ'); return false; }
                     let score = 0;
                     if (q1.value === 'ข') score++;
                     if (q2.value === 'ค') score++;
                     if (q3.value === 'ก') score++;
                     if (q4.value === 'ข') score++;
                     if (q5.value === 'ง') score++;
-
                     return score;
                 }
             }).then(async (result) => {
                 if (result.isConfirmed) {
                     const score = result.value;
                     Swal.fire({ title: 'กำลังบันทึกคะแนน...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-
                     try {
                         const cbName = 'jsonp_post_' + Math.random().toString(36).substring(2);
                         const url = `${SCRIPT_URL}?action=save_score&username=${encodeURIComponent(username)}&test_type=Post-test&score=${score}`;
                         await jsonp(url, cbName);
-                    } catch (e) {
-                        console.error('Save score error', e);
-                    }
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'ส่งคำตอบสำเร็จ!',
-                        html: `บันทึกคะแนนเรียบร้อยแล้ว<br><b>คะแนนทดสอบหลังเรียนของคุณ: ${score} / 5 คะแนน</b>`,
-                        confirmButtonColor: '#3b82f6'
-                    });
+                    } catch (e) { console.error(e); }
+                    Swal.fire({ icon: 'success', title: 'ส่งคำตอบสำเร็จ!', html: `คะแนนของคุณ: ${score} / 5 คะแนน`, confirmButtonColor: '#3b82f6' });
                 }
             });
         }
