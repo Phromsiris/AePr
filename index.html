@@ -280,31 +280,33 @@
 
 
     <!-- ========================================== -->
-    <!-- ส่วนของ Widget แชทสด (เชื่อมต่อ Firebase แล้ว) -->
+    <!-- ส่วนของ Widget แชทสด (ซ่อนไว้จนกว่าจะ Login สำเร็จ) -->
     <!-- ========================================== -->
-    <div class="fixed bottom-5 right-5 z-50">
-        <button onclick="toggleChatBox()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105">
-            💬 <span class="ml-2 font-medium hidden md:inline">แชทกับเรา</span>
-        </button>
-    </div>
-
-    <div id="chat-widget-box" class="hidden fixed bottom-20 right-5 z-50 w-80 md:w-96 bg-white border border-indigo-100 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300">
-        <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <span class="w-3 h-3 bg-emerald-400 rounded-2xl animate-pulse"></span>
-                <h3 class="font-bold text-sm">ห้องสนทนาสด (Live Chat)</h3>
-            </div>
-            <button onclick="toggleChatBox()" class="text-white hover:text-gray-200 font-bold text-lg px-2">✕</button>
+    <div id="chat-container" class="hidden">
+        <div class="fixed bottom-5 right-5 z-50">
+            <button onclick="toggleChatBox()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105">
+                💬 <span class="ml-2 font-medium hidden md:inline">แชทกับเรา</span>
+            </button>
         </div>
 
-        <!-- พื้นที่แสดงข้อความ Realtime จาก Firebase -->
-        <div id="chat-messages" class="p-4 h-72 overflow-y-auto space-y-3 bg-gray-50 text-sm flex flex-col"></div>
+        <div id="chat-widget-box" class="hidden fixed bottom-20 right-5 z-50 w-80 md:w-96 bg-white border border-indigo-100 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300">
+            <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <span class="w-3 h-3 bg-emerald-400 rounded-2xl animate-pulse"></span>
+                    <h3 class="font-bold text-sm">ห้องสนทนาสด (Live Chat)</h3>
+                </div>
+                <button onclick="toggleChatBox()" class="text-white hover:text-gray-200 font-bold text-lg px-2">✕</button>
+            </div>
 
-        <div class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
-            <input type="text" id="chat-input-msg" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="handleChatKeyPress(event)" class="flex-grow border border-gray-200 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500">
-            <button onclick="sendFirebaseChatMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-2xl text-sm font-semibold transition">
-                ส่ง
-            </button>
+            <!-- พื้นที่แสดงข้อความ Realtime จาก Firebase -->
+            <div id="chat-messages" class="p-4 h-72 overflow-y-auto space-y-3 bg-gray-50 text-sm flex flex-col"></div>
+
+            <div class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
+                <input type="text" id="chat-input-msg" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="handleChatKeyPress(event)" class="flex-grow border border-gray-200 rounded-2xl px-4 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                <button onclick="sendFirebaseChatMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-2xl text-sm font-semibold transition">
+                    ส่ง
+                </button>
+            </div>
         </div>
     </div>
 
@@ -333,7 +335,7 @@
             appendMessageToUI(data.sender, data.text, data.time);
         });
 
-        // ส่งข้อความไปยัง Firebase Database (ถ้า username เป็น dachie จะแปลงเป็น "ผู้สอน")
+        // ส่งข้อความไปยัง Firebase Database (หากเป็น dachie จะเปลี่ยนชื่อเป็น "แอดมิน (ผู้สอน)")
         function sendFirebaseChatMessage() {
             const input = document.getElementById('chat-input-msg');
             const text = input.value.trim();
@@ -343,7 +345,7 @@
             let sender = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
 
             if (username === 'dachie') {
-                sender = 'ผู้สอน';
+                sender = 'แอดมิน (ผู้สอน)';
             }
 
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
@@ -371,10 +373,10 @@
             let currentName = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
 
             if (username === 'dachie') {
-                currentName = 'ผู้สอน';
+                currentName = 'แอดมิน (ผู้สอน)';
             }
 
-            const isMe = (sender === currentName || (username === 'dachie' && sender === 'ผู้สอน'));
+            const isMe = (sender === currentName || (username === 'dachie' && sender === 'แอดมิน (ผู้สอน)'));
 
             const bubble = document.createElement('div');
             if (isMe) {
@@ -385,7 +387,7 @@
                     <span class="text-[10px] text-indigo-200 block text-right mt-1">${time}</span>
                 `;
             } else {
-                const isInstructor = (sender === 'ผู้สอน');
+                const isInstructor = (sender === 'แอดมิน (ผู้สอน)');
                 bubble.className = isInstructor 
                     ? "self-start bg-purple-100 border border-purple-300 rounded-2xl py-2 px-3 max-w-[80%] shadow-sm" 
                     : "self-start bg-white border border-gray-200 rounded-2xl py-2 px-3 max-w-[80%] shadow-sm";
@@ -425,14 +427,16 @@
         function showHome() {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('home-section').classList.remove('hidden');
+            document.getElementById('chat-container').classList.remove('hidden'); // แสดงกล่องแชทเฉพาะเมื่อล็อกอินแล้ว
+
             const username = sessionStorage.getItem('currentUsername') || '';
-            let fullname = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
+            let fullname = sessionStorage.getItem('currentFullname') || username || 'นักศึกษา';
             
             if (username === 'dachie') {
-                fullname = 'แอดมิน(ผู้สอน)';
+                fullname = 'แอดมิน (ผู้สอน)';
             }
 
-            document.getElementById('user-display-name').innerText = `สวัสดี, ${username}`;
+            document.getElementById('user-display-name').innerText = `สวัสดี, ${fullname}`;
         }
 
         function togglePortfolioMenu() {
