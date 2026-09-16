@@ -280,15 +280,17 @@
 
 
     <!-- ========================================== -->
-    <!-- ส่วนของ Widget แชทสด (ซ่อนไว้จนกว่าจะ Login สำเร็จ) -->
+    <!-- ส่วนของ Widget แชทสด (Sticky ลอยตัววิ่งตาม Scrollbar) -->
     <!-- ========================================== -->
     <div id="chat-container" class="hidden">
+        <!-- ปุ่มเปิด-ปิดแชท (Fixed เกาะติดมุมขวาล่างเสมอ เวลาเลื่อนหน้าจอ) -->
         <div class="fixed bottom-5 right-5 z-50">
             <button onclick="toggleChatBox()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105">
                 💬 <span class="ml-2 font-medium hidden md:inline">แชทกับเรา</span>
             </button>
         </div>
 
+        <!-- กล่องข้อความแชท (Fixed เกาะติดมุมขวาล่างเสมอ เวลาเลื่อนหน้าจอ) -->
         <div id="chat-widget-box" class="hidden fixed bottom-20 right-5 z-50 w-80 md:w-96 bg-white border border-indigo-100 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300">
             <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
