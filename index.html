@@ -404,10 +404,10 @@
         // ฟังก์ชันเปิด-ปิด กล่องแชท
         function toggleChatBox() {
             const box = document.getElementById('chat-widget-box');
-            if (box.classList.contains('opened')) {
-                box.classList.remove('opened');
+            if (box.classList.contains('hidden')) {
+                box.classList.remove('hidden');
             } else {
-                box.classList.add('opened');
+                box.classList.add('hidden');
             }
         }
 
