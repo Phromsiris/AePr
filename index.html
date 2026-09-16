@@ -75,10 +75,10 @@
             </div>
         </header>
 
-        <!-- Main Content (จัดลำดับมือถือ: วิดีโอ ➔ โซนประเมิน ➔ โซนการเรียนรู้) -->
+        <!-- Main Content -->
         <main class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch flex-grow mb-4">
 
-            <!-- 1. โซนการเรียนรู้ 6 ห้อง (บนมือถือจะอยู่ล่างสุด order-3) -->
+            <!-- 1. โซนการเรียนรู้ 6 ห้อง -->
             <section class="lg:col-span-3 order-3 lg:order-1 bg-white/95 border-2 border-sky-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
                 <div>
                     <div class="flex items-center justify-between border-b border-sky-100 pb-3 mb-3">
@@ -115,7 +115,7 @@
                 </div>
             </section>
 
-            <!-- 2. วิดีโอหลัก + แนะนำการใช้งาน (บนมือถือจะอยู่บนสุด order-1) -->
+            <!-- 2. วิดีโอหลัก + แนะนำการใช้งาน -->
             <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center justify-between">
                 <div class="w-full">
                     <div class="text-center mb-3">
@@ -142,7 +142,7 @@
                 </div>
             </section>
 
-            <!-- 3. โซนการประเมิน (บนมือถือจะอยู่อันดับ 2 ถัดจากวิดีโอ order-2) -->
+            <!-- 3. โซนการประเมิน -->
             <section class="lg:col-span-3 order-2 lg:order-3 bg-white/95 border-2 border-emerald-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between h-full">
                 <div>
                     <div class="flex items-center justify-between border-b border-emerald-100 pb-3 mb-3">
@@ -192,7 +192,7 @@
 
         </main>
 
-        <!-- Footer Widgets -->
+        <!-- Footer Widgets (เพิ่ม E-Book แบบฝังหน้าเพจ) -->
         <footer class="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
             
             <!-- ซ้าย: ตารางกำหนดการส่งผลงาน -->
@@ -233,7 +233,7 @@
                 </div>
             </div>
 
-            <!-- ขวา: ลิงก์ส่งผลงาน และ รายละเอียดของกิจกรรมในรายวิชา (E-Book) -->
+            <!-- ขวา: ลิงก์ส่งผลงาน และ E-Book ฝังหน้าเพจ -->
             <div class="flex flex-col gap-4">
                 <!-- กล่องลิงก์ส่งผลงาน -->
                 <div class="bg-white/95 border border-pink-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between">
@@ -246,14 +246,14 @@
                     </div>
                 </div>
 
-                <!-- กล่อง E-Book รายละเอียดของกิจกรรมในรายวิชา -->
+                <!-- กล่อง E-Book แบบฝังหน้าเพจ (Embed Flip Book) -->
                 <div class="bg-white/95 border border-purple-200 rounded-3xl p-4 shadow-lg flex flex-col justify-between">
                     <div>
                         <h3 class="text-sm font-bold text-purple-700 mb-2 flex items-center gap-2">📚 รายละเอียดของกิจกรรมในรายวิชา</h3>
-                        <p class="text-xs text-gray-500 mb-3">อ่านรายละเอียดคู่มือและกิจกรรมทั้งหมดในรูปแบบ E-Book (Flip Book)</p>
+                        <p class="text-xs text-gray-500 mb-3">สามารถพลิกอ่านหน้าหนังสือ E-Book ได้โดยตรงจากหน้าเว็บนี้</p>
                     </div>
-                    <div class="text-center py-2">
-                        <a href="https://heyzine.com/flip-book/1816f443be.html" target="_blank" class="inline-block bg-purple-600 hover:bg-purple-700 text-white text-sm md:text-base font-semibold py-2.5 px-6 rounded-2xl shadow-md transition transform hover:-translate-y-0.5">📖 เปิดอ่าน E-Book ➔</a>
+                    <div class="relative w-full aspect-[4/3] bg-gray-100 rounded-2xl overflow-hidden shadow-inner border border-purple-100">
+                        <iframe src="https://heyzine.com/flip-book/1816f443be.html" class="w-full h-full absolute inset-0" frameborder="0" allowfullscreen allow="clipboard-write"></iframe>
                     </div>
                 </div>
             </div>
