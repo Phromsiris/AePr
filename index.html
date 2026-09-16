@@ -333,13 +333,19 @@
             appendMessageToUI(data.sender, data.text, data.time);
         });
 
-        // ส่งข้อความไปยัง Firebase Database (ดึงชื่อจริง-นามสกุลมาใช้)
+        // ส่งข้อความไปยัง Firebase Database (ถ้า username เป็น dachie จะแปลงเป็น "ผู้สอน")
         function sendFirebaseChatMessage() {
             const input = document.getElementById('chat-input-msg');
             const text = input.value.trim();
             if (!text) return;
 
-            const sender = sessionStorage.getItem('currentFullname') || sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
+            const username = sessionStorage.getItem('currentUsername') || '';
+            let sender = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
+
+            if (username === 'dachie') {
+                sender = 'ผู้สอน';
+            }
+
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
             db.ref('messages').push({
@@ -361,8 +367,14 @@
         // แสดงข้อความลงบนหน้าจอ UI
         function appendMessageToUI(sender, text, time) {
             const msgContainer = document.getElementById('chat-messages');
-            const currentName = sessionStorage.getItem('currentFullname') || sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชม';
-            const isMe = (sender === currentName);
+            const username = sessionStorage.getItem('currentUsername') || '';
+            let currentName = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
+
+            if (username === 'dachie') {
+                currentName = 'ผู้สอน';
+            }
+
+            const isMe = (sender === currentName || (username === 'dachie' && sender === 'ผู้สอน'));
 
             const bubble = document.createElement('div');
             if (isMe) {
@@ -373,9 +385,13 @@
                     <span class="text-[10px] text-indigo-200 block text-right mt-1">${time}</span>
                 `;
             } else {
-                bubble.className = "self-start bg-white border border-gray-200 rounded-2xl py-2 px-3 max-w-[80%] shadow-sm";
+                const isInstructor = (sender === 'ผู้สอน');
+                bubble.className = isInstructor 
+                    ? "self-start bg-purple-100 border border-purple-300 rounded-2xl py-2 px-3 max-w-[80%] shadow-sm" 
+                    : "self-start bg-white border border-gray-200 rounded-2xl py-2 px-3 max-w-[80%] shadow-sm";
+
                 bubble.innerHTML = `
-                    <p class="text-xs font-bold text-indigo-600">${sender}</p>
+                    <p class="text-xs font-bold ${isInstructor ? 'text-purple-700' : 'text-indigo-600'}">${sender}</p>
                     <p class="text-gray-700">${text}</p>
                     <span class="text-[10px] text-gray-400 block text-right mt-1">${time}</span>
                 `;
@@ -388,10 +404,10 @@
         // ฟังก์ชันเปิด-ปิด กล่องแชท
         function toggleChatBox() {
             const box = document.getElementById('chat-widget-box');
-            if (box.classList.contains('hidden')) {
-                box.classList.remove('hidden');
+            if (box.classList.contains('opened')) {
+                box.classList.remove('opened');
             } else {
-                box.classList.add('hidden');
+                box.classList.add('opened');
             }
         }
 
@@ -409,8 +425,14 @@
         function showHome() {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('home-section').classList.remove('hidden');
-            const fullname = sessionStorage.getItem('currentFullname') || sessionStorage.getItem('currentUsername') || 'นักศึกษา';
-            document.getElementById('user-display-name').innerText = `สวัสดี, ${fullname}`;
+            const username = sessionStorage.getItem('currentUsername') || '';
+            let fullname = sessionStorage.getItem('currentFullname') || username || 'ผู้เยี่ยมชม';
+            
+            if (username === 'dachie') {
+                fullname = 'แอดมิน(ผู้สอน)';
+            }
+
+            document.getElementById('user-display-name').innerText = `สวัสดี, ${username}`;
         }
 
         function togglePortfolioMenu() {
