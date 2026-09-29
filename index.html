@@ -120,7 +120,7 @@
                 </div>
             </section>
 
-            <!-- 2. วิดีโอหลัก + คู่มือ และ ปุ่มส่งผลงาน -->
+            <!-- 2. วิดีโอหลัก + คู่มือ และ ปุ่มส่งผลงาน (ปรับแก้ลิงก์ YouTube ให้เล่นออโต้และวนลูป) -->
             <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center justify-between">
                 <div class="w-full">
                     <div class="text-center mb-3">
@@ -130,7 +130,7 @@
 
                     <div class="w-full bg-white border-4 border-purple-300 rounded-3xl p-3 shadow-xl relative">
                         <div class="relative w-full aspect-video bg-gray-100 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
-                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/watch?v=MZVDXsg2WXo" title="Video Lesson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            <iframe class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/MZVDXsg2WXo?autoplay=1&mute=1&loop=1&playlist=MZVDXsg2WXo" title="Video Lesson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                         </div>
                         <div class="mt-3 text-center bg-purple-50 py-2 rounded-xl border border-purple-100">
                             <p class="text-xs md:text-sm text-purple-700 font-medium">การเรียนรู้...เริ่มต้นได้จากที่นี่</p>
@@ -283,14 +283,12 @@
     <!-- ส่วนของ Widget แชทสด (Sticky ลอยตัววิ่งตาม Scrollbar) -->
     <!-- ========================================== -->
     <div id="chat-container" class="hidden">
-        <!-- ปุ่มเปิด-ปิดแชท (Fixed เกาะติดมุมขวาล่างเสมอ เวลาเลื่อนหน้าจอ) -->
         <div class="fixed bottom-5 right-5 z-50">
             <button onclick="toggleChatBox()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-4 rounded-full shadow-2xl flex items-center justify-center transition transform hover:scale-105">
                 💬 <span class="ml-2 font-medium hidden md:inline">แชทกับเรา</span>
             </button>
         </div>
 
-        <!-- กล่องข้อความแชท (Fixed เกาะติดมุมขวาล่างเสมอ เวลาเลื่อนหน้าจอ) -->
         <div id="chat-widget-box" class="hidden fixed bottom-20 right-5 z-50 w-80 md:w-96 bg-white border border-indigo-100 rounded-3xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300">
             <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
                 <div class="flex items-center space-x-2">
@@ -300,7 +298,6 @@
                 <button onclick="toggleChatBox()" class="text-white hover:text-gray-200 font-bold text-lg px-2">✕</button>
             </div>
 
-            <!-- พื้นที่แสดงข้อความ Realtime จาก Firebase -->
             <div id="chat-messages" class="p-4 h-72 overflow-y-auto space-y-3 bg-gray-50 text-sm flex flex-col"></div>
 
             <div class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
@@ -317,9 +314,6 @@
     <!-- ส่วนควบคุม JavaScript & Firebase Setup -->
     <!-- ========================================== -->
     <script>
-        // ----------------------------------------------------
-        // ตั้งค่าการเชื่อมต่อ Firebase
-        // ----------------------------------------------------
         const firebaseConfig = {
             apiKey: "AIzaSyDcxsj2SNia9NHyFgJ9uP453uTTZjWITgE",
             authDomain: "ca-virtual-classroom-chat.firebaseapp.com",
@@ -331,32 +325,28 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // โหลดและฟังการเปลี่ยนแปลงข้อความแบบ Realtime จาก Firebase
         db.ref('messages').on('child_added', (snapshot) => {
             const data = snapshot.val();
             appendMessageToUI(data.sender, data.text, data.time);
         });
 
-        // ส่งข้อความไปยัง Firebase Database (เก็บบันทึก Username จริงหลังบ้าน แต่หน้าจอโชว์เป็นผู้เยี่ยมชม)
         function sendFirebaseChatMessage() {
             const input = document.getElementById('chat-input-msg');
             const text = input.value.trim();
             if (!text) return;
 
             const username = sessionStorage.getItem('currentUsername') || 'guest';
-            
-            // กำหนดชื่อที่จะแสดงบนหน้าจอเว็บไซต์
             let displaySender = 'ผู้เยี่ยมชม';
+
             if (username === 'dachie') {
                 displaySender = 'แอดมิน (ผู้สอน)';
             }
 
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
-            // ส่งข้อมูลขึ้น Firebase โดยเก็บทั้ง "username" ไว้เช็กหลังบ้าน และ "sender" ไว้โชว์หน้าจอ
             db.ref('messages').push({
-                username: username,     // <--- บันทึก Username จริงเพื่อดูหลังบ้าน
-                sender: displaySender,  // <--- ชื่อที่จะนำไปแสดงผลบนหน้าจอ UI
+                username: username,
+                sender: displaySender,
                 text: text,
                 time: time
             });
@@ -364,14 +354,12 @@
             input.value = '';
         }
 
-        // กด Enter เพื่อส่งข้อความได้
         function handleChatKeyPress(e) {
             if (e.key === 'Enter') {
                 sendFirebaseChatMessage();
             }
         }
 
-        // แสดงข้อความลงบนหน้าจอ UI
         function appendMessageToUI(sender, text, time) {
             const msgContainer = document.getElementById('chat-messages');
             const username = sessionStorage.getItem('currentUsername') || '';
@@ -408,7 +396,6 @@
             msgContainer.scrollTop = msgContainer.scrollHeight;
         }
 
-        // ฟังก์ชันเปิด-ปิด กล่องแชท
         function toggleChatBox() {
             const box = document.getElementById('chat-widget-box');
             if (box.classList.contains('hidden')) {
@@ -418,9 +405,6 @@
             }
         }
 
-        // ----------------------------------------------------
-        // ระบบเดิมของเว็บไซต์ (Login / ทดสอบ / Google Apps Script)
-        // ----------------------------------------------------
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -432,7 +416,7 @@
         function showHome() {
             document.getElementById('login-section').classList.add('hidden');
             document.getElementById('home-section').classList.remove('hidden');
-            document.getElementById('chat-container').classList.remove('hidden'); // แสดงกล่องแชทเฉพาะเมื่อล็อกอินแล้ว
+            document.getElementById('chat-container').classList.remove('hidden');
 
             const username = sessionStorage.getItem('currentUsername') || '';
             let fullname = sessionStorage.getItem('currentFullname') || username || 'นักศึกษา';
@@ -474,7 +458,6 @@
             });
         }
 
-        // ฟังก์ชัน Login
         function openLoginModal() {
             Swal.fire({
                 title: 'ลงชื่อเข้าใช้',
@@ -527,7 +510,7 @@
             Swal.fire({
                 title: 'กู้คืนรหัสผ่าน',
                 html: `<p style="font-size: 0.9rem; color: #555; margin-bottom: 15px;">กรอกอีเมลที่คุณใช้ลงทะเบียน</p><input type="text" id="forgot-input" class="swal2-input" placeholder="อีเมล">`,
-                confirmButtonText: 'ตรวจสอบรหัสผ่าน',
+                confirmButtonText: 'ตรวจสอบข้อมูล',
                 confirmButtonColor: '#4f46e5',
                 preConfirm: () => {
                     const val = document.getElementById('forgot-input').value.trim();
@@ -574,6 +557,7 @@
                         <option value="ปี 3">ชั้นปีที่ 3</option>
                         <option value="ปี 4">ชั้นปีที่ 4</option>
                         <option value="อาจารย์">อาจารย์</option>
+                        <option value="บุคลากรภายใน">บุคลากรภายใน</option>
                         <option value="บุคคลภายนอก">บุคคลภายนอก</option>
                     </select>
                     <input type="email" id="reg-email" class="swal2-input" placeholder="อีเมล (Email)">
