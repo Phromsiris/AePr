@@ -28,8 +28,8 @@
         <div class="flex items-center space-x-3">
             <span class="w-3.5 h-3.5 bg-emerald-400 rounded-full animate-pulse"></span>
             <div>
-                <h1 id="external-room-title" class="text-base md:text-lg font-bold text-indigo-700">ห้องสนทนาห้องเรียนที่ 2</h1>
-                <p class="text-xs text-gray-500">ช่องทางสื่อสารโดยตรงสำหรับผู้เรียนเพื่อปรึกษาเนื้อหาบทเรียน หรือแจ้งปัญหาการใช้งานระบบ</p>
+                <h1 id="external-room-title" class="text-base md:text-lg font-bold text-indigo-700">ห้องสนทนาพิเศษ</h1>
+                <p class="text-xs text-gray-500">ระบบสนทนาออนไลน์แยกต่างหาก</p>
             </div>
         </div>
         <button onclick="window.close()" class="text-gray-400 hover:text-gray-600 font-bold text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl transition">
@@ -75,7 +75,7 @@
         // โหลดข้อความเฉพาะของห้องนี้แบบ Realtime
         db.ref(`external_messages/${externalRoom}`).on('child_added', (snapshot) => {
             const data = snapshot.val();
-            appendMessageToUI(data.sender, data.text, data.time);
+            appendMessageToUI(data.sender, data.text, data.time, data.username);
         });
 
         function sendExternalChatMessage() {
@@ -83,7 +83,8 @@
             const text = input.value.trim();
             if (!text) return;
 
-            const username = sessionStorage.getItem('currentUsername'] || 'ผู้เยี่ยมชมภายนอก';
+            // แก้ไขจุดผิดพลาดตรงวงเล็บเหลี่ยมเป็นวงเล็บโค้งให้ถูกต้อง
+            const username = sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชมภายนอก';
             let displaySender = (username === 'dachie') ? 'แอดมิน (ผู้สอน)' : username;
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
@@ -104,20 +105,32 @@
             }
         }
 
-        function appendMessageToUI(sender, text, time) {
+        function appendMessageToUI(sender, text, time, msgUsername) {
             const msgContainer = document.getElementById('chat-messages');
             const bubble = document.createElement('div');
             
-            const isInstructor = (sender === 'แอดมิน (ผู้สอน)');
-            bubble.className = isInstructor 
-                ? "self-start bg-purple-100 border border-purple-300 rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm" 
-                : "self-start bg-white border border-gray-200 rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm";
+            const currentLoginUser = sessionStorage.getItem('currentUsername') || '';
+            const isMe = (msgUsername && msgUsername === currentLoginUser) || (sender === currentLoginUser);
 
-            bubble.innerHTML = `
-                <p class="text-xs font-bold ${isInstructor ? 'text-purple-700' : 'text-indigo-600'}">${sender}</p>
-                <p class="text-gray-700 mt-0.5">${text}</p>
-                <span class="text-[10px] text-gray-400 block text-right mt-1">${time}</span>
-            `;
+            if (isMe) {
+                bubble.className = "self-end bg-indigo-600 text-white rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm";
+                bubble.innerHTML = `
+                    <p class="text-xs font-bold text-indigo-200">คุณ (${sender})</p>
+                    <p class="mt-0.5">${text}</p>
+                    <span class="text-[10px] text-indigo-200 block text-right mt-1">${time}</span>
+                `;
+            } else {
+                const isInstructor = (sender === 'แอดมิน (ผู้สอน)');
+                bubble.className = isInstructor 
+                    ? "self-start bg-purple-100 border border-purple-300 rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm" 
+                    : "self-start bg-white border border-gray-200 rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm";
+
+                bubble.innerHTML = `
+                    <p class="text-xs font-bold ${isInstructor ? 'text-purple-700' : 'text-indigo-600'}">${sender}</p>
+                    <p class="text-gray-700 mt-0.5">${text}</p>
+                    <span class="text-[10px] text-gray-400 block text-right mt-1">${time}</span>
+                `;
+            }
 
             msgContainer.appendChild(bubble);
             msgContainer.scrollTop = msgContainer.scrollHeight;
