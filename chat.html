@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ห้องสนทนาพิเศษ (External Chat)</title>
+    <title>ห้องสนทนาห้องเรียนเสมือน</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- SweetAlert2 -->
@@ -28,7 +28,7 @@
         <div class="flex items-center space-x-3">
             <span class="w-3.5 h-3.5 bg-emerald-400 rounded-full animate-pulse"></span>
             <div>
-                <h1 id="external-room-title" class="text-base md:text-lg font-bold text-indigo-700">ห้องสนทนาพิเศษห้องเรียนที่ 2</h1>
+                <h1 id="external-room-title" class="text-base md:text-lg font-bold text-indigo-700">ห้องสนทนา</h1>
                 <p class="text-xs text-gray-500">ช่องทางสื่อสารโดยตรงสำหรับนักศึกษาเพื่อปรึกษาเนื้อหาบทเรียน หรือแจ้งปัญหาการใช้งานระบบ</p>
             </div>
         </div>
@@ -66,11 +66,20 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ดึงชื่อห้องจาก URL พารามิเตอร์ เช่น chat.html?room=special_room
+        // ดึงชื่อห้องจาก URL พารามิเตอร์ เช่น chat.html?room=room_2
         const urlParams = new URLSearchParams(window.location.search);
-        const externalRoom = urlParams.get('room') || 'general_external';
+        const externalRoom = urlParams.get('room') || 'room_1';
 
-        document.getElementById('external-room-title').innerText = `ห้องสนทนา: ${externalRoom}`;
+        // แปลงชื่อห้องให้แสดงผลเป็นภาษาไทยที่สวยงาม
+        let roomDisplayName = "ห้องสนทนาพิเศษ";
+        if (externalRoom === 'room_1' || externalRoom === 'room1') {
+            roomDisplayName = "ห้องสนทนาห้องเรียนที่ 1";
+        } else if (externalRoom === 'room_2' || externalRoom === 'room2') {
+            roomDisplayName = "ห้องสนทนาห้องเรียนที่ 2";
+        } else {
+            roomDisplayName = `ห้องสนทนา: ${externalRoom}`;
+        }
+        document.getElementById('external-room-title').innerText = roomDisplayName;
 
         // โหลดข้อความเฉพาะของห้องนี้แบบ Realtime
         db.ref(`external_messages/${externalRoom}`).on('child_added', (snapshot) => {
@@ -83,12 +92,20 @@
             const text = input.value.trim();
             if (!text) return;
 
-            // แก้ไขจุดผิดพลาดตรงวงเล็บเหลี่ยมเป็นวงเล็บโค้งให้ถูกต้อง
+            // ดึงข้อมูล User เดิมที่เคยล็อกอินไว้ในเซสชัน
             const username = sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชมภายนอก';
-            let displaySender = (username === 'dachie') ? 'แอดมิน (ผู้สอน)' : username;
+            const fullname = sessionStorage.getItem('currentFullname') || username;
+            
+            let displaySender = 'ผู้เยี่ยมชมภายนอก';
+            if (username === 'dachie') {
+                displaySender = 'แอดมิน (ผู้สอน)';
+            } else if (fullname && fullname !== '') {
+                displaySender = fullname;
+            }
+
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
-            // บันทึกแยกไว้ใน path 'external_messages' จะไม่ไปกวนแชทหลักหน้า index
+            // บันทึกแยกไว้ใน path 'external_messages' ตามชื่อห้อง
             db.ref(`external_messages/${externalRoom}`).push({
                 username: username,
                 sender: displaySender,
@@ -110,7 +127,7 @@
             const bubble = document.createElement('div');
             
             const currentLoginUser = sessionStorage.getItem('currentUsername') || '';
-            const isMe = (msgUsername && msgUsername === currentLoginUser) || (sender === currentLoginUser);
+            const isMe = (msgUsername && msgUsername === currentLoginUser);
 
             if (isMe) {
                 bubble.className = "self-end bg-indigo-600 text-white rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm";
