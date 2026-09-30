@@ -1,0 +1,128 @@
+HTML
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ห้องสนทนาพิเศษ (External Chat)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Google Font: Prompt -->
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Firebase App (Modular Scripts) -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+
+    <style>
+        body {
+            font-family: 'Prompt', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-pink-50 via-purple-50 to-sky-50 min-h-screen flex flex-col justify-between p-3 md:p-6">
+
+    <!-- ส่วนหัวของหน้าแชทแยก -->
+    <header class="max-w-2xl mx-auto w-full bg-white/95 backdrop-blur-md border border-indigo-100 rounded-2xl p-4 shadow-lg mb-3 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <span class="w-3.5 h-3.5 bg-emerald-400 rounded-full animate-pulse"></span>
+            <div>
+                <h1 id="external-room-title" class="text-base md:text-lg font-bold text-indigo-700">ห้องสนทนาพิเศษ</h1>
+                <p class="text-xs text-gray-500">ระบบสนทนาออนไลน์แยกต่างหาก</p>
+            </div>
+        </div>
+        <button onclick="window.close()" class="text-gray-400 hover:text-gray-600 font-bold text-sm bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-xl transition">
+            ปิดหน้าต่าง ✕
+        </button>
+    </header>
+
+    <!-- พื้นที่แสดงแชท -->
+    <main class="max-w-2xl mx-auto w-full bg-white border border-indigo-100 rounded-3xl shadow-xl flex flex-col overflow-hidden flex-grow mb-3" style="max-height: 75vh;">
+        <div id="chat-messages" class="p-4 overflow-y-auto space-y-3 bg-gray-50 text-sm flex flex-col flex-grow"></div>
+
+        <div class="p-3 bg-white border-t border-gray-100 flex items-center gap-2">
+            <input type="text" id="chat-input-msg" placeholder="พิมพ์ข้อความที่นี่..." onkeypress="handleChatKeyPress(event)" class="flex-grow border border-gray-200 rounded-2xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500">
+            <button onclick="sendExternalChatMessage()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-2xl text-sm font-semibold transition shadow-sm">
+                ส่ง
+            </button>
+        </div>
+    </main>
+
+    <footer class="text-center text-xs text-gray-400">
+        &copy; 2026 ระบบห้องเรียนออนไลน์. All rights reserved.
+    </footer>
+
+    <!-- Script สำหรับควบคุมการเชื่อมต่อ Firebase แยกห้อง -->
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDcxsj2SNia9NHyFgJ9uP453uTTZjWITgE",
+            authDomain: "ca-virtual-classroom-chat.firebaseapp.com",
+            projectId: "ca-virtual-classroom-chat",
+            storageBucket: "ca-virtual-classroom-chat.firebasestorage.app",
+            messagingSenderId: "208658083032",
+            appId: "1:208658083032:web:a08966c6bf529268457bad"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        // ดึงชื่อห้องจาก URL พารามิเตอร์ เช่น chat.html?room=special_room
+        const urlParams = new URLSearchParams(window.location.search);
+        const externalRoom = urlParams.get('room') || 'general_external';
+
+        document.getElementById('external-room-title').innerText = `ห้องสนทนา: ${externalRoom}`;
+
+        // โหลดข้อความเฉพาะของห้องนี้แบบ Realtime
+        db.ref(`external_messages/${externalRoom}`).on('child_added', (snapshot) => {
+            const data = snapshot.val();
+            appendMessageToUI(data.sender, data.text, data.time);
+        });
+
+        function sendExternalChatMessage() {
+            const input = document.getElementById('chat-input-msg');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const username = sessionStorage.getItem('currentUsername'] || 'ผู้เยี่ยมชมภายนอก';
+            let displaySender = (username === 'dachie') ? 'แอดมิน (ผู้สอน)' : username;
+            const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+
+            // บันทึกแยกไว้ใน path 'external_messages' จะไม่ไปกวนแชทหลักหน้า index
+            db.ref(`external_messages/${externalRoom}`).push({
+                username: username,
+                sender: displaySender,
+                text: text,
+                time: time
+            });
+
+            input.value = '';
+        }
+
+        function handleChatKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendExternalChatMessage();
+            }
+        }
+
+        function appendMessageToUI(sender, text, time) {
+            const msgContainer = document.getElementById('chat-messages');
+            const bubble = document.createElement('div');
+            
+            const isInstructor = (sender === 'แอดมิน (ผู้สอน)');
+            bubble.className = isInstructor 
+                ? "self-start bg-purple-100 border border-purple-300 rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm" 
+                : "self-start bg-white border border-gray-200 rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm";
+
+            bubble.innerHTML = `
+                <p class="text-xs font-bold ${isInstructor ? 'text-purple-700' : 'text-indigo-600'}">${sender}</p>
+                <p class="text-gray-700 mt-0.5">${text}</p>
+                <span class="text-[10px] text-gray-400 block text-right mt-1">${time}</span>
+            `;
+
+            msgContainer.appendChild(bubble);
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+        }
+    </script>
+</body>
+</html>
