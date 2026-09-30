@@ -28,7 +28,7 @@
         <div class="flex items-center space-x-3">
             <span class="w-3.5 h-3.5 bg-emerald-400 rounded-full animate-pulse"></span>
             <div>
-                <h1 id="external-room-title" class="text-base md:text-lg font-bold text-indigo-700">ห้องสนทนาห้องเรียนที่ 2</h1>
+                <h1 id="external-room-title" class="text-base md:text-lg font-bold text-indigo-700">ห้องสนทนา</h1>
                 <p class="text-xs text-gray-500">ช่องทางสื่อสารโดยตรงสำหรับนักศึกษาเพื่อปรึกษาเนื้อหาบทเรียน หรือแจ้งปัญหาการใช้งานระบบ</p>
             </div>
         </div>
@@ -66,11 +66,11 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // ดึงชื่อห้องจาก URL พารามิเตอร์ เช่น chat.html?room=room_2
+        // ดึงชื่อห้องจาก URL พารามิเตอร์
         const urlParams = new URLSearchParams(window.location.search);
         const externalRoom = urlParams.get('room') || 'room_1';
 
-        // แปลงชื่อห้องให้แสดงผลเป็นภาษาไทยที่สวยงาม
+        // ตั้งชื่อหัวข้อห้อง
         let roomDisplayName = "ห้องสนทนาพิเศษ";
         if (externalRoom === 'room_1' || externalRoom === 'room1') {
             roomDisplayName = "ห้องสนทนาห้องเรียนที่ 1";
@@ -80,6 +80,17 @@
             roomDisplayName = `ห้องสนทนา: ${externalRoom}`;
         }
         document.getElementById('external-room-title').innerText = roomDisplayName;
+
+        // ตรวจสอบและจัดการชื่อผู้ใช้ (ถ้าระบบเปิดแยกหน้าต่าง ให้เช็คว่ามีชื่อส่งมาทาง URL หรือไม่ หรือให้ระบุตัวตน)
+        let currentUsername = sessionStorage.getItem('currentUsername');
+        let currentFullname = sessionStorage.getItem('currentFullname');
+
+        // หากเปิดเข้ามาแบบไม่มี Session ให้ลองเช็คจาก URL พารามิเตอร์ (เช่น chat.html?room=room_2&user=ชื่อผู้ใช้)
+        const urlUser = urlParams.get('user');
+        if (!currentUsername && urlUser) {
+            currentUsername = urlUser;
+            currentFullname = urlUser;
+        }
 
         // โหลดข้อความเฉพาะของห้องนี้แบบ Realtime
         db.ref(`external_messages/${externalRoom}`).on('child_added', (snapshot) => {
@@ -92,28 +103,55 @@
             const text = input.value.trim();
             if (!text) return;
 
-            // ดึงข้อมูล User เดิมที่เคยล็อกอินไว้ในเซสชัน
-            const username = sessionStorage.getItem('currentUsername') || 'ผู้เยี่ยมชมภายนอก';
-            const fullname = sessionStorage.getItem('currentFullname') || username;
-            
+            // หากไม่มีชื่อในระบบ ให้แสดง SweetAlert ถามชื่อเล่นหรือชื่อ-นามสกุล เพื่อให้ไม่ต้องขึ้นเป็นผู้เยี่ยมชมภายนอก
+            if (!currentUsername || currentUsername === 'guest') {
+                Swal.fire({
+                    title: 'กรุณากรอกชื่อของคุณก่อนส่งข้อความ',
+                    input: 'text',
+                    inputPlaceholder: 'พิมพ์ชื่อ - นามสกุลของคุณที่นี่...',
+                    confirmButtonText: 'ตกลง',
+                    confirmButtonColor: '#4f46e5',
+                    allowOutsideClick: false,
+                    inputValidator: (value) => {
+                        if (!value) {
+                            return 'กรุณากรอกชื่อก่อนครับ!';
+                        }
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        currentUsername = result.value;
+                        currentFullname = result.value;
+                        sessionStorage.setItem('currentUsername', currentUsername);
+                        sessionStorage.setItem('currentFullname', currentFullname);
+                        executeSendMessage(text);
+                    }
+                });
+                return;
+            }
+
+            executeSendMessage(text);
+        }
+
+        function executeSendMessage(text) {
             let displaySender = 'ผู้เยี่ยมชมภายนอก';
-            if (username === 'dachie') {
+            if (currentUsername === 'dachie') {
                 displaySender = 'แอดมิน (ผู้สอน)';
-            } else if (fullname && fullname !== '') {
-                displaySender = fullname;
+            } else if (currentFullname && currentFullname !== '') {
+                displaySender = currentFullname;
+            } else {
+                displaySender = currentUsername;
             }
 
             const time = new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
 
-            // บันทึกแยกไว้ใน path 'external_messages' ตามชื่อห้อง
             db.ref(`external_messages/${externalRoom}`).push({
-                username: username,
+                username: currentUsername,
                 sender: displaySender,
                 text: text,
                 time: time
             });
 
-            input.value = '';
+            document.getElementById('chat-input-msg').value = '';
         }
 
         function handleChatKeyPress(e) {
@@ -126,8 +164,7 @@
             const msgContainer = document.getElementById('chat-messages');
             const bubble = document.createElement('div');
             
-            const currentLoginUser = sessionStorage.getItem('currentUsername') || '';
-            const isMe = (msgUsername && msgUsername === currentLoginUser);
+            const isMe = (msgUsername && msgUsername === currentUsername);
 
             if (isMe) {
                 bubble.className = "self-end bg-indigo-600 text-white rounded-2xl py-2 px-3.5 max-w-[80%] shadow-sm";
