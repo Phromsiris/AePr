@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Lighting Interactive Game</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 { margin-bottom: 5px; color: #ffb74d; }
+        p.subtitle { color: #aaa; margin-top: 0; }
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1000px;
+            width: 100%;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .panel {
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+        }
+        canvas {
+            background: #2c2c2c;
+            border-radius: 8px;
+            cursor: pointer;
+            display: block;
+        }
+        .controls {
+            width: 300px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .light-control {
+            background: #2d2d2d;
+            padding: 12px;
+            border-radius: 8px;
+            border-left: 5px solid #fff;
+        }
+        .light-control.key { border-left-color: #ff9800; }
+        .light-control.fill { border-left-color: #03a9f4; }
+        .light-control.back { border-left-color: #e91e63; }
+        
+        label { font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px; }
+        input[type="range"] { width: 100%; cursor: pointer; }
+        .checkbox-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .instructions {
+            margin-top: 20px;
+            max-width: 1000px;
+            background: #1e1e1e;
+            padding: 15px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .instructions h3 { margin-top: 0; color: #ffb74d; }
+    </style>
+</head>
+<body>
+
+    <h1>Studio Lighting Simulator</h1>
+    <p class="subtitle">คลิกและลากดวงไฟในแผนผังด้านซ้ายเพื่อเปลี่ยนตำแหน่ง แล้วสังเกตการตกกระทบของแสงบนตัวแบบ</p>
+
+    <div class="container">
+        <!-- พื้นผังจำลองสตูดิโอ (Top-down view) -->
+        <div class="panel">
+            <canvas id="studioCanvas" width="450" height="450"></canvas>
+        </div>
+
+        <!-- แผงควบคุมดวงไฟ -->
+        <div class="panel controls">
+            <h3>แผงควบคุมอุปกรณ์</h3>
+            
+            <!-- Key Light -->
+            <div class="light-control key">
+                <div class="checkbox-group">
+                    <label style="color:#ff9800;">Key Light (ไฟหลัก)</label>
+                    <input type="checkbox" id="keyOn" checked>
+                </div>
+                <label>ความสว่าง: <span id="keyVal">80</span>%</label>
+                <input type="range" id="keyIntensity" min="0" max="100" value="80">
+            </div>
+
+            <!-- Fill Light -->
+            <div class="light-control fill">
+                <div class="checkbox-group">
+                    <label style="color:#03a9f4;">Fill Light (ไฟเสริม)</label>
+                    <input type="checkbox" id="fillOn" checked>
+                </div>
+                <label>ความสว่าง: <span id="fillVal">40</span>%</label>
+                <input type="range" id="fillIntensity" min="0" max="100" value="40">
+            </div>
+
+            <!-- Back Light -->
+            <div class="light-control back">
+                <div class="checkbox-group">
+                    <label style="color:#e91e63;">Back Light (ไฟขอบ)</label>
+                    <input type="checkbox" id="backOn" checked>
+                </div>
+                <label>ความสว่าง: <span id="backVal">60</span>%</label>
+                <input type="range" id="backIntensity" min="0" max="100" value="60">
+            </div>
+        </div>
+    </div>
+
+    <div class="instructions">
+        <h3>วิธีเล่นและเรียนรู้:</h3>
+        <ul>
+            <li><b>Key Light (สีส้ม):</b> ไฟหลักที่กำหนดทิศทางแสงและเงาหลักบนตัวแบบ (มักวางเฉียง 45 องศา)</li>
+            <li><b>Fill Light (สีฟ้า):</b> ไฟเติมเพื่อช่วยลดความเข้มของเงาในฝั่งตรงข้ามไม่ให้มืดทึบเกินไป</li>
+            <li><b>Back Light (สีชมพู):</b> ไฟส่องจากด้านหลังเพื่อสร้างขอบแสง (Rim Light) ช่วยแยกตัวแบบออกจากฉากหลัง</li>
+        </ul>
+    </div>
+
+<script>
+    const canvas = document.getElementById('studioCanvas');
+    const ctx = canvas.getContext('2d');
+
+    // ตำแหน่งศูนย์กลางสตูดิโอ (ตัวแบบ)
+    const subject = { x: 225, y: 225, radius: 25 };
+
+    // ตำแหน่งดวงไฟเริ่มต้น (พิกัด X, Y ใน Canvas)
+    let lights = {
+        key: { x: 120, y: 120, color: '#ff9800', name: 'Key', radius: 12 },
+        fill: { x: 330, y: 150, color: '#03a9f4', name: 'Fill', radius: 12 },
+        back: { x: 225, y: 380, color: '#e91e63', name: 'Back', radius: 12 }
+    };
+
+    let selectedLight = null;
+
+    // ควบคุมการคลิกและลากดวงไฟ
+    canvas.addEventListener('mousedown', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        for (let key in lights) {
+            let l = lights[key];
+            let dist = Math.hypot(mouseX - l.x, mouseY - l.y);
+            if (dist < l.radius + 10) {
+                selectedLight = l;
+                break;
+            }
+        }
+    });
+
+    canvas.addEventListener('mousemove', (e) => {
+        if (!selectedLight) return;
+        const rect = canvas.getBoundingClientRect();
+        selectedLight.x = Math.max(20, Math.min(canvas.width - 20, e.clientX - rect.left));
+        selectedLight.y = Math.max(20, Math.min(canvas.height - 20, e.clientY - rect.top));
+        drawScene();
+    });
+
+    window.addEventListener('mouseup', () => {
+        selectedLight = null;
+    });
+
+    // ดึงค่าจาก UI
+    const keyOn = document.getElementById('keyOn');
+    const keyIntensity = document.getElementById('keyIntensity');
+    const keyVal = document.getElementById('keyVal');
+
+    const fillOn = document.getElementById('fillOn');
+    const fillIntensity = document.getElementById('fillIntensity');
+    const fillVal = document.getElementById('fillVal');
+
+    const backOn = document.getElementById('backOn');
+    const backIntensity = document.getElementById('backIntensity');
+    const backVal = document.getElementById('backVal');
+
+    [keyIntensity, fillIntensity, backIntensity, keyOn, fillOn, backOn].forEach(element => {
+        element.addEventListener('input', () => {
+            keyVal.innerText = keyIntensity.value;
+            fillVal.innerText = fillIntensity.value;
+            backVal.innerText = backIntensity.value;
+            drawScene();
+        });
+    });
+
+    function drawScene() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // 1. วาดตารางพื้นหลังสตูดิโอ
+        ctx.strokeStyle = '#383838';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < canvas.width; i += 45) {
+            ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
+        }
+
+        // 2. จำลองการส่องแสงตกกระทบตัวแบบ (Visualizing light effect บนหัวหุ่นจำลอง)
+        // วาดตัวแบบตรงกลาง
+        ctx.beginPath();
+        ctx.arc(subject.x, subject.y, subject.radius, 0, Math.PI * 2);
+        ctx.fillStyle = '#b0b0b0';
+        ctx.fill();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#fff';
+        ctx.stroke();
+
+        // คำนวณแสงและเงาเบื้องต้น
+        let lightData = [
+            { light: lights.key, on: keyOn.checked, intensity: keyIntensity.value / 100 },
+            { light: lights.fill, on: fillOn.checked, intensity: fillIntensity.value / 100 },
+            { light: lights.back, on: backOn.checked, intensity: backIntensity.value / 100 }
+        ];
+
+        lightData.forEach(item => {
+            if (!item.on) return;
+            // ลากเส้นแสงจากดวงไฟมายังตัวแบบ
+            ctx.beginPath();
+            ctx.moveTo(item.light.x, item.light.y);
+            ctx.lineTo(subject.x, subject.y);
+            ctx.strokeStyle = item.light.color;
+            ctx.globalAlpha = item.intensity * 0.4;
+            ctx.lineWidth = item.intensity * 6;
+            ctx.stroke();
+            ctx.globalAlpha = 1.0;
+        });
+
+        // 3. วาดไอคอนดวงไฟ
+        for (let key in lights) {
+            let l = lights[key];
+            let isOn = (key === 'key' && keyOn.checked) || (key === 'fill' && fillOn.checked) || (key === 'back' && backOn.checked);
+            
+            ctx.beginPath();
+            ctx.arc(l.x, l.y, l.radius, 0, Math.PI * 2);
+            ctx.fillStyle = isOn ? l.color : '#555';
+            ctx.fill();
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#fff';
+            ctx.stroke();
+
+            // ข้อความชื่อดวงไฟ
+            ctx.fillStyle = '#fff';
+            ctx.font = '12px sans-serif';
+            ctx.fillText(l.name, l.x - 15, l.y - 18);
+        }
+    }
+
+    // เรนเดอร์ครั้งแรก
+    drawScene();
+</script>
+
+</body>
+</html>
