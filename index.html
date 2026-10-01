@@ -120,7 +120,7 @@
                 </div>
             </section>
 
-            <!-- 2. วิดีโอหลัก YouTube (ตั้งค่าแบบฝังตรง เล่นออโต้พร้อมเสียงบน PC และปิดเสียงออโต้บนมือถือ) -->
+            <!-- 2. วิดีโอหลัก YouTube พร้อมปุ่มคลิกเปิดเสียง -->
             <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center justify-between">
                 <div class="w-full">
                     <div class="text-center mb-3">
@@ -129,11 +129,19 @@
                     </div>
 
                     <div class="w-full bg-white border-4 border-purple-300 rounded-3xl p-3 shadow-xl relative">
-                        <div class="relative w-full aspect-video bg-gray-100 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
-                            <iframe id="responsive-yt-video" class="w-full h-full absolute inset-0" src="" title="Video Lesson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <div class="relative w-full aspect-video bg-gray-900 rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
+                            <!-- YouTube iframe พร้อมใช้ API ควบคุม -->
+                            <iframe id="yt-player" class="w-full h-full absolute inset-0" src="https://www.youtube.com/embed/KVltgEWK_hI?autoplay=1&mute=1&loop=1&playlist=KVltgEWK_hI&controls=1&enablejsapi=1&playsinline=1" title="Video Lesson" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            
+                            <!-- ปุ่มคลิกทับเพื่อเปิดเสียงทันที -->
+                            <div id="unmute-overlay" onclick="enableAudioAndPlay()" class="absolute inset-0 bg-black/40 backdrop-blur-[1px] flex flex-col items-center justify-center cursor-pointer transition-opacity duration-300 z-20">
+                                <div class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-2xl shadow-2xl flex items-center gap-2 transform transition hover:scale-105 text-sm md:text-base animate-bounce">
+                                    🔊 คลิกที่นี่เพื่อเปิดเสียงและเข้าสู่บทเรียน
+                                </div>
+                            </div>
                         </div>
                         <div class="mt-3 text-center bg-purple-50 py-2 rounded-xl border border-purple-100">
-                            <p id="video-hint-text" class="text-xs md:text-sm text-purple-700 font-medium">การเรียนรู้...เริ่มต้นได้จากที่นี่</p>
+                            <p class="text-xs md:text-sm text-purple-700 font-medium">การเรียนรู้...เริ่มต้นได้จากที่นี่</p>
                         </div>
                     </div>
                 </div>
@@ -314,26 +322,35 @@
     <!-- ส่วนควบคุม JavaScript & Firebase Setup -->
     <!-- ========================================== -->
     <script>
-        // ตรวจสอบประเภทอุปกรณ์และกำหนดลิงก์ YouTube ทันทีโดยตรง
-        window.addEventListener('DOMContentLoaded', () => {
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const iframeVideo = document.getElementById('responsive-yt-video');
-            const hintText = document.getElementById('video-hint-text');
+        // โหลด YouTube Iframe API เพื่อใช้คำสั่งเปิดเสียงและเล่นต่อทันทีเมื่อคลิกปุ่ม
+        let player;
+        function onYouTubeIframeAPIReady() {
+            player = new YT.Player('yt-player', {
+                events: {
+                    'onReady': (event) => {
+                        event.target.playVideo();
+                    }
+                }
+            });
+        }
 
-            if (isMobile) {
-                // บนมือถือ: เล่นอัตโนมัติแบบปิดเสียง (mute=1) เพื่อป้องกันจอดำ
-                iframeVideo.src = "https://www.youtube.com/embed/KVltgEWK_hI?autoplay=1&mute=1&loop=1&playlist=KVltgEWK_hI&controls=1&playsinline=1";
-                hintText.innerText = "💡 แนะนำ: แตะที่ไอคอนลำโพงบนวิดีโอเพื่อเปิดเสียง";
-            } else {
-                // บนคอมพิวเตอร์: บังคับเล่นอัตโนมัติแบบเปิดเสียง (mute=0) ทันที
-                iframeVideo.src = "https://www.youtube.com/embed/KVltgEWK_hI?autoplay=1&mute=0&loop=1&playlist=KVltgEWK_hI&controls=1";
-                hintText.innerText = "การเรียนรู้...เริ่มต้นได้จากที่นี่";
-            }
+        const tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        const firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-            if (sessionStorage.getItem('isLoggedIn') === 'true') {
-                showHome();
+        function enableAudioAndPlay() {
+            const overlay = document.getElementById('unmute-overlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => { overlay.style.display = 'none'; }, 300);
             }
-        });
+            if (player && typeof player.unMute === 'function') {
+                player.unMute();
+                player.setVolume(100);
+                player.playVideo();
+            }
+        }
 
 
         const firebaseConfig = {
@@ -428,6 +445,12 @@
         }
 
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyFUNjDQpg-nAiM8zluVF_p04qoZsWO7JlQ0gHVSxB34hfyWOjgkdWriyT2ntAgH7OoJg/exec";    
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (sessionStorage.getItem('isLoggedIn') === 'true') {
+                showHome();
+            }
+        });
 
         function showHome() {
             document.getElementById('login-section').classList.add('hidden');
