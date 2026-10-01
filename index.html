@@ -120,7 +120,7 @@
                 </div>
             </section>
 
-            <!-- 2. วิดีโอหลัก YouTube (ปรับเลือกลิงก์อัตโนมัติ PC มีเสียง / Mobile ไม่มีเสียงเพื่อให้ออโต้ชัวร์) -->
+            <!-- 2. วิดีโอหลัก YouTube (ตั้งค่าแบบฝังตรง เล่นออโต้พร้อมเสียงบน PC และปิดเสียงออโต้บนมือถือ) -->
             <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center justify-between">
                 <div class="w-full">
                     <div class="text-center mb-3">
@@ -314,18 +314,18 @@
     <!-- ส่วนควบคุม JavaScript & Firebase Setup -->
     <!-- ========================================== -->
     <script>
-        // ตรวจสอบประเภทอุปกรณ์ (Mobile / Tablet หรือ PC) เพื่อปรับลิงก์วิดีโอให้เหมาะสม
+        // ตรวจสอบประเภทอุปกรณ์และกำหนดลิงก์ YouTube ทันทีโดยตรง
         window.addEventListener('DOMContentLoaded', () => {
             const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
             const iframeVideo = document.getElementById('responsive-yt-video');
             const hintText = document.getElementById('video-hint-text');
 
             if (isMobile) {
-                // บนมือถือ: เล่นอัตโนมัติแบบปิดเสียง (mute=1) เพื่อให้วิดีโอขยับเล่นทันทีไม่ติดบล็อกจอดำ
+                // บนมือถือ: เล่นอัตโนมัติแบบปิดเสียง (mute=1) เพื่อป้องกันจอดำ
                 iframeVideo.src = "https://www.youtube.com/embed/KVltgEWK_hI?autoplay=1&mute=1&loop=1&playlist=KVltgEWK_hI&controls=1&playsinline=1";
                 hintText.innerText = "💡 แนะนำ: แตะที่ไอคอนลำโพงบนวิดีโอเพื่อเปิดเสียง";
             } else {
-                // บนคอมพิวเตอร์: เล่นอัตโนมัติพร้อมมีเสียงดังได้ปกติ
+                // บนคอมพิวเตอร์: บังคับเล่นอัตโนมัติแบบเปิดเสียง (mute=0) ทันที
                 iframeVideo.src = "https://www.youtube.com/embed/KVltgEWK_hI?autoplay=1&mute=0&loop=1&playlist=KVltgEWK_hI&controls=1";
                 hintText.innerText = "การเรียนรู้...เริ่มต้นได้จากที่นี่";
             }
