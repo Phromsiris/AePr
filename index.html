@@ -120,7 +120,7 @@
                 </div>
             </section>
 
-            <!-- 2. ส่วนแสดงผลวิดีโอหลักจาก Google Drive + คู่มือ และ ปุ่มส่งผลงาน -->
+            <!-- 2. ส่วนแสดงผลวิดีโอ Google Drive (เล่นออโต้ + วนลูป) + คู่มือ และ ปุ่มส่งผลงาน -->
             <section class="lg:col-span-6 order-1 lg:order-2 flex flex-col items-center justify-between">
                 <div class="w-full">
                     <div class="text-center mb-3">
@@ -130,8 +130,8 @@
 
                     <div class="w-full bg-white border-4 border-purple-300 rounded-3xl p-3 shadow-xl relative">
                         <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-inner flex items-center justify-center">
-                            <!-- ใช้ Direct Link จาก Google Drive สำหรับเล่นวิดีโอแบบเล่นออโต้ วนลูป และแสดงแถบควบคุมเสียง -->
-                            <video class="w-full h-full object-cover" autoplay controls loop playsinline>
+                            <!-- เพิ่ม attribute autoplay, loop และ controls -->
+                            <video class="w-full h-full object-cover" autoplay loop controls muted playsinline>
                                 <source src="https://docs.google.com/uc?export=download&id=1E0y-B7-9UWmt462oecuOMs1RpPeXuDzS" type="video/mp4">
                                 เบราว์เซอร์ของคุณไม่รองรับการเล่นวิดีโอ
                             </video>
